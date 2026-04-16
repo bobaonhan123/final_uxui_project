@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BNConcert - UX/UI Final Presentation</title>
+
+  <!-- Reveal.js CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ==================== SLIDE 1: TITLE ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F0F2F8 0%, #FFFFFF 40%, #F8F0FA 100%)">
+        <div class="title-slide">
+          <div class="logo-container">
+            <div class="logo-icon">
+              <i class="fas fa-music"></i>
+            </div>
+          </div>
+          <h1 class="main-title">BN<span class="accent">Concert</span></h1>
+          <p class="subtitle">Online concert ticketing app</p>
+          <div class="divider"></div>
+          <div class="meta-info">
+            <p class="course">UX/UI Design — Final Project</p>
+            <p class="author">VoGiaCu Team</p>
+            <p class="date">2025</p>
+          </div>
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Good day, professors and classmates. The VoGiaCu team is pleased to present our UX/UI final project: BNConcert, an online concert ticketing app designed to deliver the easiest and most convenient booking experience.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 2: PROJECT OVERVIEW ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">01</div>
+          <h2>Project <span class="accent">Goals</span></h2>
+          <div class="overview-grid">
+            <div class="overview-card">
+              <div class="card-icon"><i class="fas fa-bullseye"></i></div>
+              <h3>Purpose</h3>
+              <p>Design an online concert ticketing app with an optimized booking experience</p>
+            </div>
+            <div class="overview-card">
+              <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+              <h3>Project Scope</h3>
+              <p>Core flows: authentication, ticket browsing, seat selection, checkout, dashboard</p>
+            </div>
+            <div class="overview-card">
+              <div class="card-icon"><i class="fas fa-mobile-alt"></i></div>
+              <h3>Platform</h3>
+              <p>Web application with responsive design for desktop and mobile</p>
+            </div>
+            <div class="overview-card">
+              <div class="card-icon"><i class="fas fa-palette"></i></div>
+              <h3>Tools</h3>
+              <p>Figma, React Native, Python API, JavaScript</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          This project overview includes four parts: purpose, implementation scope, platform direction, and core product and engineering tools.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 3: PROBLEM STATEMENT ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">02</div>
+          <h2>Problem <span class="accent">Statement</span></h2>
+          <div class="problem-container">
+            <div class="problem-main">
+              <i class="fas fa-exclamation-triangle problem-icon"></i>
+              <blockquote>
+                "Current ticketing platforms are often hard to navigate due to complex flows, unclear information, and fragmented payment experiences."
+              </blockquote>
+            </div>
+            <div class="problem-points">
+              <div class="problem-point">
+                <span class="point-num">01</span>
+                <p>Current platform interfaces are not intuitive and often cause confusion</p>
+              </div>
+              <div class="problem-point">
+                <span class="point-num">02</span>
+                <p>Lack of detailed event and seating information</p>
+              </div>
+              <div class="problem-point">
+                <span class="point-num">03</span>
+                <p>Booking requires too many steps and takes too much time</p>
+              </div>
+              <div class="problem-point">
+                <span class="point-num">04</span>
+                <p>Design-to-code handoff is slow and inconsistent across teams</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Problem statement: ticket booking products still suffer from complex interfaces, incomplete information, long flows, and inconsistent handoff between design and engineering.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 4: GOAL ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">03</div>
+          <h2>Project <span class="accent">Goals</span></h2>
+          <div class="goals-container">
+            <div class="goal-item">
+              <div class="goal-number">01</div>
+              <div class="goal-text">
+                <h3>Simplify flow</h3>
+                <p>Reduce booking steps from 7+ to 3-4 steps</p>
+              </div>
+            </div>
+            <div class="goal-item">
+              <div class="goal-number">02</div>
+              <div class="goal-text">
+                <h3>Enhance UX</h3>
+                <p>Create an intuitive, easy-to-use interface with clear information</p>
+              </div>
+            </div>
+            <div class="goal-item">
+              <div class="goal-number">03</div>
+              <div class="goal-text">
+                <h3>Delivery Consistency</h3>
+                <p>Keep design and engineering handoff clear across iterations</p>
+              </div>
+            </div>
+            <div class="goal-item">
+              <div class="goal-number">04</div>
+              <div class="goal-text">
+                <h3>Accessibility</h3>
+                <p>Ensure the app is accessible to all users</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Four goals: simplify the booking flow, improve interface clarity, strengthen delivery consistency, and keep accessibility standards in every screen.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 5: USER RESEARCH ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">04</div>
+          <h2>User <span class="accent">Research</span></h2>
+          <div class="research-grid">
+            <div class="research-method">
+              <div class="method-icon"><i class="fas fa-users"></i></div>
+              <h3>User Needs</h3>
+              <div class="method-detail">
+                <span class="stat">Survey</span>
+                <span class="stat-label">feedback capture</span>
+              </div>
+              <p>Collected booking frustrations, expectation patterns, and payment preferences</p>
+            </div>
+            <div class="research-method">
+              <div class="method-icon"><i class="fas fa-comments"></i></div>
+              <h3>Interviews</h3>
+              <div class="method-detail">
+                <span class="stat">Interview</span>
+                <span class="stat-label">pain validation</span>
+              </div>
+              <p>Explored where users slow down in search, seat selection, and checkout</p>
+            </div>
+            <div class="research-method">
+              <div class="method-icon"><i class="fas fa-compass"></i></div>
+              <h3>Benchmark</h3>
+              <div class="method-detail">
+                <span class="stat">Market</span>
+                <span class="stat-label">competitor mapping</span>
+              </div>
+              <p>Compared market flows to identify practical UX opportunities for BNConcert</p>
+            </div>
+          </div>
+          <div class="research-insight">
+            <i class="fas fa-lightbulb"></i>
+            <p><strong>Key Insight:</strong> Users need a shorter path from discovery to successful checkout with clearer information.</p>
+          </div>
+        </div>
+        <aside class="notes">
+          Research combined survey input, user interviews, and competitor benchmarking to define priority UX problems.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 6: COMPETITIVE ANALYSIS ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">05</div>
+          <h2>Competitive <span class="accent">Analysis</span></h2>
+          <p class="slide-desc">Analysis of 20 popular concert ticketing applications</p>
+          <div class="competitors-grid">
+            <div class="competitor-group">
+              <h3 class="group-title"><i class="fas fa-globe"></i> International</h3>
+              <div class="competitor-tags">
+                <span class="tag">Ticketmaster</span>
+                <span class="tag">Eventbrite</span>
+                <span class="tag">StubHub</span>
+                <span class="tag">SeatGeek</span>
+                <span class="tag">Dice</span>
+                <span class="tag">AXS</span>
+                <span class="tag">Bandsintown</span>
+                <span class="tag">Songkick</span>
+                <span class="tag">Vivid Seats</span>
+                <span class="tag">LiveNation</span>
+              </div>
+            </div>
+            <div class="competitor-group">
+              <h3 class="group-title"><i class="fas fa-flag"></i> Vietnam & Asia</h3>
+              <div class="competitor-tags">
+                <span class="tag">Ticketbox</span>
+                <span class="tag">TicketVN</span>
+                <span class="tag">VNTicket</span>
+                <span class="tag">Momo Events</span>
+                <span class="tag">ZaloPay Events</span>
+                <span class="tag">Trip.com</span>
+                <span class="tag">Klook</span>
+                <span class="tag">BookMyShow</span>
+                <span class="tag">Feverup</span>
+                <span class="tag">Melon Ticket</span>
+              </div>
+            </div>
+          </div>
+          <div class="analysis-summary">
+            <div class="summary-item"><i class="fas fa-check accent"></i> Strength: Modern UI with rich features</div>
+            <div class="summary-item"><i class="fas fa-times" style="color:#ED2E2E"></i> Weakness: Complex flow and limited personalization</div>
+          </div>
+        </div>
+        <aside class="notes">
+          We analyzed 20 apps across International platforms (Ticketmaster, Eventbrite, StubHub, etc.) and Vietnam/Asia platforms (Ticketbox, Momo Events, ZaloPay Events, etc.). Strengths include modern UI and feature depth. Weaknesses include complex flows and limited personalization, creating an opportunity for BNConcert.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 7: PAIN POINTS ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">06</div>
+          <h2>Pain <span class="accent">Points</span></h2>
+          <div class="painpoints-grid">
+            <div class="painpoint-card">
+              <div class="painpoint-severity high">High</div>
+              <i class="fas fa-route"></i>
+              <h3>Long flow</h3>
+              <p>Too many steps to complete booking, leading to cart abandonment</p>
+            </div>
+            <div class="painpoint-card">
+              <div class="painpoint-severity high">High</div>
+              <i class="fas fa-info-circle"></i>
+              <h3>Insufficient info</h3>
+              <p>Not enough information about venue, seating map, and artists</p>
+            </div>
+            <div class="painpoint-card">
+              <div class="painpoint-severity medium">Medium</div>
+              <i class="fas fa-credit-card"></i>
+              <h3>Hard payment</h3>
+              <p>Limited payment methods with no e-wallet support</p>
+            </div>
+            <div class="painpoint-card">
+              <div class="painpoint-severity medium">Medium</div>
+              <i class="fas fa-filter"></i>
+              <h3>Poor search</h3>
+              <p>Limited filters and no preference-based recommendations</p>
+            </div>
+            <div class="painpoint-card">
+              <div class="painpoint-severity low">Low</div>
+              <i class="fas fa-universal-access"></i>
+              <h3>Accessibility</h3>
+              <p>Limited support for users with disabilities</p>
+            </div>
+            <div class="painpoint-card">
+              <div class="painpoint-severity low">Low</div>
+              <i class="fas fa-bell"></i>
+              <h3>Notifications</h3>
+              <p>No reminder system for upcoming events</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Six pain points: HIGH: long flows that drive cart abandonment, and missing venue/seating information. MEDIUM: limited payments (especially e-wallet support) and weak search. LOW: accessibility gaps and missing event reminders.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 8: USER PERSONA ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">07</div>
+          <h2>User <span class="accent">Persona</span></h2>
+          <div class="persona-container">
+            <div class="persona-header">
+              <div class="persona-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="persona-info">
+                <h3>Minh Anh - Core Persona</h3>
+                <p class="persona-tagline">"I want booking tickets to be fast, clear, and reliable."</p>
+                <div class="persona-tags">
+                  <span>Student</span>
+                  <span>Concert Lover</span>
+                  <span>Mobile-First</span>
+                </div>
+              </div>
+            </div>
+            <div class="persona-details">
+              <div class="persona-section">
+                <h4><i class="fas fa-heart"></i> Goals</h4>
+                <ul>
+                  <li>Find matching concerts quickly with clear event details</li>
+                  <li>Select seats confidently and complete payment without friction</li>
+                  <li>Receive confirmation quickly and manage tickets easily</li>
+                </ul>
+              </div>
+              <div class="persona-section">
+                <h4><i class="fas fa-face-frown"></i> Frustrations</h4>
+                <ul>
+                  <li>Too many booking steps and unclear progress</li>
+                  <li>Missing seating and venue context before payment</li>
+                  <li>Uncertainty around ticket confirmation and trust signals</li>
+                </ul>
+              </div>
+              <div class="persona-section">
+                <h4><i class="fas fa-mobile-alt"></i> Behaviors</h4>
+                <ul>
+                  <li>Primary usage on mobile during commuting and evenings</li>
+                  <li>Compares options fast and prefers transparent pricing</li>
+                  <li>Expects simple navigation and instant feedback after actions</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Persona definition keeps the product focused on real booking behavior and high-friction moments.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 9: USER JOURNEY ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">08</div>
+          <h2>User <span class="accent">Journey Map</span></h2>
+          <div class="journey-container">
+            <div class="journey-step">
+              <div class="journey-phase">Discovery</div>
+              <div class="journey-emoji">🔍</div>
+              <p>Users browse events and compare what matches their interests</p>
+              <div class="journey-emotion happy"><i class="fas fa-smile"></i></div>
+            </div>
+            <div class="journey-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="journey-step">
+              <div class="journey-phase">Details</div>
+              <div class="journey-emoji">📋</div>
+              <p>They review date, venue, ticket tiers, and event information quality</p>
+              <div class="journey-emotion happy"><i class="fas fa-smile"></i></div>
+            </div>
+            <div class="journey-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="journey-step">
+              <div class="journey-phase">Seats</div>
+              <div class="journey-emoji">🎫</div>
+              <p>Seat map clarity determines confidence before users continue</p>
+              <div class="journey-emotion neutral"><i class="fas fa-meh"></i></div>
+            </div>
+            <div class="journey-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="journey-step">
+              <div class="journey-phase">Payment</div>
+              <div class="journey-emoji">💳</div>
+              <p>This is the highest-friction point when forms or methods are unclear</p>
+              <div class="journey-emotion sad"><i class="fas fa-frown"></i></div>
+            </div>
+            <div class="journey-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="journey-step">
+              <div class="journey-phase journey-phase-long">Confirmation</div>
+              <div class="journey-emoji">✅</div>
+              <p>Users need immediate ticket confirmation and clear next actions</p>
+              <div class="journey-emotion happy"><i class="fas fa-smile-beam"></i></div>
+            </div>
+          </div>
+          <div class="journey-insight">
+            <p><i class="fas fa-arrow-up accent"></i> <strong>Opportunity:</strong> Payment and confirmation clarity have the highest impact on completion rate.</p>
+          </div>
+        </div>
+        <aside class="notes">
+          Journey analysis highlights where emotional drops happen and where design improvements should be prioritized.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 10: IDEATION ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">09</div>
+          <h2>Ideation & <span class="accent">Solution</span></h2>
+          <div class="ideation-grid">
+            <div class="idea-card">
+              <div class="idea-icon"><i class="fas fa-magic"></i></div>
+              <h3>Smart Recommend</h3>
+              <p>Recommend concerts based on history and preferences</p>
+            </div>
+            <div class="idea-card">
+              <div class="idea-icon"><i class="fas fa-bolt"></i></div>
+              <h3>Quick Book</h3>
+              <p>Book tickets in only 3 simple steps</p>
+            </div>
+            <div class="idea-card">
+              <div class="idea-icon"><i class="fas fa-map-marked-alt"></i></div>
+              <h3>Interactive Seat Map</h3>
+              <p>Interactive 3D seating map</p>
+            </div>
+            <div class="idea-card">
+              <div class="idea-icon"><i class="fas fa-wallet"></i></div>
+              <h3>Flexible Payments</h3>
+              <p>MoMo, ZaloPay, Visa, Mastercard, Banking</p>
+            </div>
+            <div class="idea-card">
+              <div class="idea-icon"><i class="fas fa-qrcode"></i></div>
+              <h3>E-Ticket QR</h3>
+              <p>E-ticket with QR code for fast check-in</p>
+            </div>
+            <div class="idea-card">
+              <div class="idea-icon"><i class="fas fa-share-alt"></i></div>
+              <h3>Social Share</h3>
+              <p>Share and invite friends to attend together</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Six solutions: Smart Recommend (preference-based suggestions), Quick Book (3-step flow), Interactive Seat Map (zoom + filter), Flexible Payments (MoMo, ZaloPay, Visa, etc.), E-Ticket QR (faster check-in), and Social Share (invite friends).
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 10: ENGINEERING VALIDATION ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">10</div>
+          <h2>Engineering <span class="accent">Validation</span></h2>
+          <div class="testing-grid">
+            <div class="testing-info">
+              <div class="testing-method">
+                <h3><i class="fas fa-clipboard-check"></i> Validation Gates</h3>
+                <ul>
+                  <li>TypeScript and Python static checks</li>
+                  <li>API schema and contract validation</li>
+                  <li>Routing and critical flow smoke tests</li>
+                </ul>
+              </div>
+              <div class="testing-participants">
+                <h3><i class="fas fa-list-check"></i> Quality Focus</h3>
+                <ul>
+                  <li>Flow completion and edge-case handling</li>
+                  <li>Consistency between screens and API response states</li>
+                  <li>Regression checks before release candidates</li>
+                </ul>
+              </div>
+            </div>
+            <div class="testing-results">
+              <h3><i class="fas fa-shield-check"></i> Current Status</h3>
+              <ul class="validation-list">
+                <li><i class="fas fa-check-circle"></i> Core navigation, auth flow, and checkout flow implemented</li>
+                <li><i class="fas fa-check-circle"></i> Backend endpoints integrated with frontend screens</li>
+                <li><i class="fas fa-check-circle"></i> Design system tokens synchronized between design and code</li>
+                <li><i class="fas fa-hourglass-half"></i> Pre-production telemetry and live monitoring are pending</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Engineering validation ensures stable flows and release readiness before wider user testing.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 12: LOW-FI PROTOTYPE ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">12</div>
+          <h2>Low-Fi <span class="accent">Prototype</span></h2>
+          <div class="prototype-image-block">
+            <img src="assets/images/lowfi-prototype.png" alt="Low-fi prototype screenshot">
+          </div>
+          <p class="note-text"><i class="fas fa-image"></i> Low-fi prototype screenshot from early flow validation</p>
+        </div>
+        <aside class="notes">
+          This low-fidelity prototype was used to validate layout structure and navigation before high-fidelity polishing.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 15: HIGH-FI DESIGN ==================== -->
+      <section class="compact-ds" data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #F8F0FA 100%)">
+        <div class="slide-content">
+          <div class="section-label">13</div>
+          <h2>High-Fi <span class="accent">Design</span></h2>
+          <p class="slide-desc">Design System & UI Components — Figma Style Guide</p>
+          
+          <!-- Row 1: Colors + Typography -->
+          <div class="design-system-grid ds-two-col">
+            <div class="ds-card colors">
+              <h3><i class="fas fa-palette"></i> Colors</h3>
+              <div class="ds-color-section">
+                <p class="ds-label">Brand Colors</p>
+                <div class="color-swatches">
+                  <div class="swatch" style="background:#FF0082"><span>Primary<br>#FF0082</span></div>
+                  <div class="swatch" style="background:#262880"><span>Secondary<br>#262880</span></div>
+                </div>
+                <p class="ds-label">Primary Shades</p>
+                <div class="color-swatches small">
+                  <div class="swatch" style="background:#FF3DA6"><span>#FF3DA6</span></div>
+                  <div class="swatch" style="background:#FF0082"><span>#FF0082</span></div>
+                  <div class="swatch" style="background:#D90078"><span>#D90078</span></div>
+                </div>
+                <p class="ds-label">State Colors</p>
+                <div class="color-swatches small">
+                  <div class="swatch" style="background:#4588E7"><span>Info</span></div>
+                  <div class="swatch" style="background:#00BA88"><span>Success</span></div>
+                  <div class="swatch" style="background:#F4B740"><span>Warning</span></div>
+                  <div class="swatch" style="background:#ED2E2E"><span>Error</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="ds-card typography">
+              <h3><i class="fas fa-font"></i> Typography — Inter</h3>
+              <div class="type-samples detailed">
+                <div class="type-row"><span class="type-spec">H1</span><span class="type-preview" style="font-size:1.4em;font-weight:600">Inter Semi Bold — 44px</span></div>
+                <div class="type-row"><span class="type-spec">H2</span><span class="type-preview" style="font-size:1.15em;font-weight:600">Inter Semi Bold — 36px</span></div>
+                <div class="type-row"><span class="type-spec">H3</span><span class="type-preview" style="font-size:1em;font-weight:500">Inter Medium — 26px</span></div>
+                <div class="type-row"><span class="type-spec">Body</span><span class="type-preview" style="font-size:0.85em">Inter Regular — 16px</span></div>
+                <div class="type-row"><span class="type-spec">Button</span><span class="type-preview" style="font-size:0.8em;font-weight:600">Inter Semi Bold — 14px</span></div>
+                <div class="type-row"><span class="type-spec">Caption</span><span class="type-preview" style="font-size:0.7em">Inter Regular — 12px</span></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Row 2: Buttons + Spacing + Grid -->
+          <div class="design-system-grid ds-three-col">
+            <div class="ds-card components">
+              <h3><i class="fas fa-mouse-pointer"></i> Buttons</h3>
+              <div class="component-preview">
+                <button class="preview-btn primary xl">XLarge</button>
+                <button class="preview-btn primary">Large</button>
+                <button class="preview-btn secondary">Secondary</button>
+                <button class="preview-btn outline">Outline</button>
+              </div>
+            </div>
+            <div class="ds-card spacing">
+              <h3><i class="fas fa-ruler-combined"></i> Spacing</h3>
+              <div class="spacing-preview">
+                <div class="spacing-item"><span class="sp-bar" style="width:16px"></span><span>8px</span></div>
+                <div class="spacing-item"><span class="sp-bar" style="width:32px"></span><span>16px</span></div>
+                <div class="spacing-item"><span class="sp-bar" style="width:48px"></span><span>24px</span></div>
+                <div class="spacing-item"><span class="sp-bar" style="width:64px"></span><span>32px</span></div>
+                <div class="spacing-item"><span class="sp-bar" style="width:96px"></span><span>48px</span></div>
+              </div>
+            </div>
+            <div class="ds-card grid-sys">
+              <h3><i class="fas fa-th"></i> Grid System</h3>
+              <div class="grid-info">
+                <div class="grid-detail">
+                  <span class="ds-label">Desktop</span>
+                  <p>12 cols · 80px width · 24px gutter</p>
+                </div>
+                <div class="grid-detail">
+                  <span class="ds-label">Mobile</span>
+                  <p>6 cols · Auto width · 16px gutter</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Design system: Colors include Primary #FF0082, Secondary #262880, and state colors (Info, Success, Warning, Error). Typography uses Inter from H1 44px to Caption 12px. Button variants range from XLarge to Outline. Spacing follows an 8px base scale (8/16/24/32/48). Grid uses 12 columns on desktop (80px width/24px gutter) and 6 columns on mobile (auto width/16px gutter).
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 13: HIGH-FI PROTOTYPE ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">14</div>
+          <h2>High-Fi <span class="accent">Prototype</span></h2>
+          <div class="prototype-image-block">
+            <img src="assets/images/highfi-prototype.png" alt="High-fi prototype screenshot">
+          </div>
+          <p class="note-text"><i class="fas fa-image"></i> Prototype screenshot from current implementation</p>
+        </div>
+        <aside class="notes">
+          This is the current high-fidelity prototype snapshot used for implementation alignment.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 17: ACCESSIBILITY ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">15</div>
+          <h2><span class="accent">Accessibility</span></h2>
+          <p class="slide-desc">Ensuring the app is accessible for all users</p>
+          <div class="a11y-grid">
+            <div class="a11y-card">
+              <div class="a11y-icon"><i class="fas fa-adjust"></i></div>
+              <h3>Color Contrast</h3>
+              <p>Meets WCAG AA standards (contrast ratio ≥ 4.5:1)</p>
+              <div class="a11y-check"><i class="fas fa-check-circle"></i> Pass</div>
+            </div>
+            <div class="a11y-card">
+              <div class="a11y-icon"><i class="fas fa-text-height"></i></div>
+              <h3>Font Size</h3>
+              <p>Minimum font size of 12px, with 16px body text for readability</p>
+              <div class="a11y-check"><i class="fas fa-check-circle"></i> Pass</div>
+            </div>
+            <div class="a11y-card">
+              <div class="a11y-icon"><i class="fas fa-hand-pointer"></i></div>
+              <h3>Touch Target</h3>
+              <p>Minimum touch target of 44x44px on mobile</p>
+              <div class="a11y-check"><i class="fas fa-check-circle"></i> Pass</div>
+            </div>
+            <div class="a11y-card">
+              <div class="a11y-icon"><i class="fas fa-keyboard"></i></div>
+              <h3>Keyboard Nav</h3>
+              <p>Full keyboard navigation support</p>
+              <div class="a11y-check"><i class="fas fa-check-circle"></i> Pass</div>
+            </div>
+          </div>
+          <div class="contrast-demo">
+            <div class="contrast-pair">
+              <div class="contrast-box" style="background:#FF0082;color:#FFFFFF">
+                <span>Aa</span>
+                <small>#FF0082 on #FFF — 3.9:1</small>
+              </div>
+              <div class="contrast-box" style="background:#141418;color:#FF0082">
+                <span>Aa</span>
+                <small>#FF0082 on #141418 — 5.2:1</small>
+              </div>
+              <div class="contrast-box" style="background:#262880;color:#FFFFFF">
+                <span>Aa</span>
+                <small>#FFF on #262880 — 10.1:1</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Accessibility passes four criteria: Color Contrast (WCAG AA, ≥4.5:1), minimum font size 12px with 16px body text, 44x44px touch targets, and full keyboard navigation. Contrast demo: Primary on white 3.9:1, Primary on dark 5.2:1, and white on Secondary 10.1:1.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 18: MOBILE DEMO ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">16</div>
+          <h2>Mobile <span class="accent">Demo</span></h2>
+          <div class="demo-container">
+            <div class="demo-screens">
+              <div class="demo-screen">
+                <div class="demo-phone">
+                  <div class="demo-phone-notch"></div>
+                  <div class="demo-content figma-live">
+                    <iframe class="figma-demo-embed" title="Mobile demo home" src="https://embed.figma.com/design/5urIiD7rZ5BAWOroaP0vm9/FinalUXUI_VoGiaCu?embed-host=share&amp;node-id=12054-25563&amp;page-selector=1&amp;theme=light" loading="lazy"></iframe>
+                  </div>
+                </div>
+                <p class="demo-caption">Home</p>
+              </div>
+              <div class="demo-screen">
+                <div class="demo-phone">
+                  <div class="demo-phone-notch"></div>
+                  <div class="demo-content figma-live">
+                    <iframe class="figma-demo-embed" title="Mobile demo search" src="https://embed.figma.com/design/5urIiD7rZ5BAWOroaP0vm9/FinalUXUI_VoGiaCu?embed-host=share&amp;node-id=12054-21193&amp;page-selector=1&amp;theme=light" loading="lazy"></iframe>
+                  </div>
+                </div>
+                <p class="demo-caption">Search</p>
+              </div>
+              <div class="demo-screen">
+                <div class="demo-phone">
+                  <div class="demo-phone-notch"></div>
+                  <div class="demo-content figma-live">
+                    <iframe class="figma-demo-embed" title="Mobile demo detail" src="https://embed.figma.com/design/5urIiD7rZ5BAWOroaP0vm9/FinalUXUI_VoGiaCu?embed-host=share&amp;node-id=12054-21049&amp;page-selector=1&amp;theme=light" loading="lazy"></iframe>
+                  </div>
+                </div>
+                <p class="demo-caption">Detail</p>
+              </div>
+              <div class="demo-screen">
+                <div class="demo-phone">
+                  <div class="demo-phone-notch"></div>
+                  <div class="demo-content figma-live">
+                    <iframe class="figma-demo-embed" title="Mobile demo booking" src="https://embed.figma.com/design/5urIiD7rZ5BAWOroaP0vm9/FinalUXUI_VoGiaCu?embed-host=share&amp;node-id=12054-21262&amp;page-selector=1&amp;theme=light" loading="lazy"></iframe>
+                  </div>
+                </div>
+                <p class="demo-caption">Booking</p>
+              </div>
+              <div class="demo-screen">
+                <div class="demo-phone">
+                  <div class="demo-phone-notch"></div>
+                  <div class="demo-content figma-live">
+                    <iframe class="figma-demo-embed" title="Mobile demo profile" src="https://embed.figma.com/design/5urIiD7rZ5BAWOroaP0vm9/FinalUXUI_VoGiaCu?embed-host=share&amp;node-id=12054-20765&amp;page-selector=1&amp;theme=light" loading="lazy"></iframe>
+                  </div>
+                </div>
+                <p class="demo-caption">Profile</p>
+              </div>
+            </div>
+            <div class="demo-link">
+              <a href="https://www.figma.com/design/5urIiD7rZ5BAWOroaP0vm9/FinalUXUI_VoGiaCu?node-id=12054-25485" target="_blank" rel="noopener noreferrer" class="demo-btn"><i class="fas fa-play-circle"></i> View Demo Prototype on Figma</a>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Five mobile screens: Home, Search, Detail, Booking, and Profile. All are responsive and follow the design system. The full interactive prototype is available on Figma.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 19: CODE IMPLEMENTATION ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">17</div>
+          <h2>Code <span class="accent">Implementation</span></h2>
+          <div class="code-grid">
+            <div class="tech-stack">
+              <h3>Tech Stack</h3>
+              <div class="stack-items">
+                <div class="stack-item">
+                  <i class="fab fa-react" style="color:#61DBFB"></i>
+                  <span>React Native</span>
+                </div>
+                <div class="stack-item">
+                  <i class="fab fa-python" style="color:#3776AB"></i>
+                  <span>Python</span>
+                </div>
+                <div class="stack-item">
+                  <i class="fab fa-js-square" style="color:#F7DF1E"></i>
+                  <span>JavaScript</span>
+                </div>
+              </div>
+            </div>
+            <div class="code-preview">
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                  <span class="code-filename">app.tsx + api.py</span>
+                </div>
+                <pre><code>// React Native (JavaScript)
+export function TicketCard({ concert }) {
+  return &lt;Pressable onPress={() => router.push(`/buy/${concert.id}`)} /&gt;;
+}
+
+# Python (FastAPI)
+@app.get("/concerts")
+def list_concerts():
+    return concert_service.get_public_concerts()
+</code></pre>
+              </div>
+            </div>
+          </div>
+          <div class="code-features">
+            <span class="feature-tag"><i class="fas fa-mobile-alt"></i> Mobile-first UI</span>
+            <span class="feature-tag"><i class="fas fa-server"></i> REST API with Python</span>
+            <span class="feature-tag"><i class="fas fa-code"></i> JavaScript app logic</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Current implementation stack is React Native, Python backend, and JavaScript logic.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 18: AI ORCHESTRATION RESULT ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #F8F0FA 100%)">
+        <div class="slide-content">
+          <div class="section-label">18</div>
+          <h2>Dev Workflow <span class="accent">Coordination</span></h2>
+          <div class="ai-orchestration-grid">
+            <div class="ai-orchestration-card">
+              <h3><i class="fas fa-wand-magic-sparkles"></i> Stitch</h3>
+              <p>Rapidly drafts UI directions to speed up early product and visual exploration.</p>
+            </div>
+            <div class="ai-orchestration-card">
+              <h3><i class="fab fa-figma"></i> Figma MCP</h3>
+              <p>Bridges Figma designs to engineering context through node-aware design extraction.</p>
+            </div>
+            <div class="ai-orchestration-card">
+              <h3><i class="fas fa-code"></i> GitHub Copilot Subagent</h3>
+              <p>Executes focused coding tasks and repo exploration to accelerate implementation.</p>
+            </div>
+            <div class="ai-orchestration-card">
+              <h3><i class="fas fa-user-check"></i> Human Review Loop</h3>
+              <p>Engineering and QA review AI outputs before integration and release.</p>
+            </div>
+          </div>
+          <div class="result-quote">
+            <i class="fas fa-info-circle"></i>
+            <p>This project is currently pre-production, so no public KPI or score is reported.</p>
+            <span>These AI tools support development workflow only, not runtime app functionality.</span>
+          </div>
+        </div>
+        <aside class="notes">
+          This slide explains tool orchestration in development and explicitly avoids implying AI is an end-user app feature.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 18: REFLECTION ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">19</div>
+          <h2>Lessons <span class="accent">Learned</span></h2>
+          <div class="reflection-grid">
+            <div class="reflection-card learned">
+              <h3><i class="fas fa-graduation-cap"></i> What We Learned</h3>
+              <ul>
+                <li>Early research alignment prevents late-stage rework</li>
+                <li>Parallel FE/BE execution is effective with strict contracts</li>
+                <li>Automated quality gates save time in integration cycles</li>
+                <li>A shared design system keeps output consistent</li>
+              </ul>
+            </div>
+            <div class="reflection-card challenges">
+              <h3><i class="fas fa-mountain"></i> Challenges</h3>
+              <ul>
+                <li>Balancing visual quality and implementation effort</li>
+                <li>Keeping API contracts stable while iterating quickly</li>
+                <li>Preventing regressions across connected user flows</li>
+                <li>Maintaining clear communication in pre-production stages</li>
+              </ul>
+            </div>
+            <div class="reflection-card would-change">
+              <h3><i class="fas fa-redo"></i> If We Did It Again</h3>
+              <ul>
+                <li>Start validation loops earlier in each sprint</li>
+                <li>Expand automated checks on critical user flows</li>
+                <li>Add stronger rollout and rollback automation</li>
+                <li>Prepare reusable review checklists per module type</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Reflection focuses on research clarity, implementation discipline, and release quality controls.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 19: NEXT STEPS ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F5F6FA 0%, #FFFFFF 100%)">
+        <div class="slide-content">
+          <div class="section-label">20</div>
+          <h2>Next <span class="accent">Steps</span></h2>
+          <div class="nextstep-timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h3>Phase 1 — UX Refinement</h3>
+                <p>Polish onboarding, seat selection cues, and checkout clarity</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h3>Phase 2 — Implementation Scale</h3>
+                <p>Expand React Native and Python modules with reusable implementation patterns</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h3>Phase 3 — Verification Pipeline</h3>
+                <p>Automate lint, tests, API compatibility checks, and pre-release validation</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h3>Phase 4 — Controlled Release</h3>
+                <p>Deploy with observability, rollback plans, and post-release improvement loops</p>
+              </div>
+            </div>
+          </div>
+          <div class="future-features">
+            <h3>Product roadmap</h3>
+            <div class="feature-chips">
+              <span class="chip">Live Event Alerts</span>
+              <span class="chip">Recommendation Tuning</span>
+              <span class="chip">Group Booking</span>
+              <span class="chip">Faster Checkout</span>
+              <span class="chip">Post-event Feedback</span>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Next steps focus on UX refinement, implementation scale, and controlled release safety.
+        </aside>
+      </section>
+
+      <!-- ==================== SLIDE 23: Q&A ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #F0F2F8 0%, #FFFFFF 40%, #F8F0FA 100%)">
+        <div class="title-slide qa-slide">
+          <div class="qa-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h1 class="main-title">Q<span class="accent">&</span>A</h1>
+          <p class="subtitle">Thank you, professors and classmates, for listening!</p>
+          <div class="divider"></div>
+          <div class="contact-info">
+            <p><i class="fas fa-envelope"></i> nhanhsb.22git@vku.udn.vn</p>
+            <p><i class="fab fa-figma"></i> BNConcert on Figma</p>
+          </div>
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Thank you, professors and classmates, for listening. Our team is happy to answer any questions.
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Reveal.js -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      center: true,
+      width: 1920,
+      height: 1080,
+      margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2.0,
+      controls: true,
+      progress: true,
+      history: true,
+      keyboard: true,
+      overview: true,
+      touch: true,
+      plugins: [RevealNotes],
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+   "inputs": [],
+   "servers": {
+     "figma": {
+       "url": "https://mcp.figma.com/mcp",
+       "type": "http"
+     },
+	 "canva-dev": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@canva/cli@latest",
+        "mcp"
+      ]
+    }
+   }
+ }
