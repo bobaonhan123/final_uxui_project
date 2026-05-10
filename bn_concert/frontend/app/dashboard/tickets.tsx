@@ -277,9 +277,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   content: {
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
-    width: 360,
+    alignSelf: 'center',
+    maxWidth: 430,
+    width: '100%',
   },
   ticketStack: {
     gap: Spacing.md,
@@ -468,10 +468,13 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     alignItems: 'center',
+    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 32,
+    maxWidth: 360,
     paddingHorizontal: 23,
+    width: '100%',
   },
   actionButton: {
     alignItems: 'center',

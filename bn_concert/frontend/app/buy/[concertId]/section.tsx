@@ -215,10 +215,10 @@ const styles = StyleSheet.create({
   },
   content: {
     alignSelf: 'center',
-    maxWidth: '100%',
+    maxWidth: 430,
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
-    width: 360,
+    width: '100%',
   },
   center: {
     flex: 1,

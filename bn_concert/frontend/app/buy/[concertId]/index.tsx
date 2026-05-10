@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.white },
   content: {
     alignSelf: 'center',
-    maxWidth: '100%',
+    maxWidth: 430,
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
     paddingBottom: 0,
-    width: 360,
+    width: '100%',
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyTitle: {

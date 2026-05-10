@@ -138,8 +138,8 @@ const styles = StyleSheet.create({
   },
   content: {
     alignSelf: 'center',
-    maxWidth: '100%',
-    width: 360,
+    maxWidth: 430,
+    width: '100%',
   },
   loadingContainer: {
     alignItems: 'center',

@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.md,
+    width: '100%',
   },
   introBlock: {
     alignSelf: 'center',
