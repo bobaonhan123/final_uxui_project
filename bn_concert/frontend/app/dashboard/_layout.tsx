@@ -20,7 +20,7 @@ export default function DashboardLayout() {
       <Stack.Screen name="payments" options={{ title: 'Payment Methods' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings' }} />
       <Stack.Screen name="help" options={{ title: 'Help & FAQ' }} />
-      <Stack.Screen name="contact" options={{ title: 'Contact Us' }} />
+      <Stack.Screen name="contact" options={{ headerShown: false }} />
       <Stack.Screen name="order/[id]" options={{ title: 'Order Details' }} />
     </Stack>
   );

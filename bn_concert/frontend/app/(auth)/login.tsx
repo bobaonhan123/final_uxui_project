@@ -26,7 +26,7 @@ interface ApiError {
 }
 
 const AUTH_BACKGROUND_URI =
-  'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1200&q=80';
+  'https://www.figma.com/api/mcp/asset/d021dfbc-b191-4362-bcc1-1948cc94831c';
 const HERO_SUBTITLE =
   'Discover millions of concert, get alerts about your favorite artists, teams, plays and more - plus always-secure, effortless ticketing.';
 
@@ -171,7 +171,7 @@ export default function LoginScreen() {
                 </View>
 
                 <View style={styles.footerRow}>
-                  <Text style={styles.footerText}>Don’t have an account? </Text>
+                  <Text style={styles.footerText}>Don&apos;t have an account? </Text>
                   <Pressable onPress={() => router.push('/(auth)/register')}>
                     <Text style={styles.footerLink}>Make an account</Text>
                   </Pressable>

@@ -6,6 +6,7 @@ import type { Concert } from '../types';
 
 const CARD_WIDTH = (Dimensions.get('window').width - Spacing.lg * 2 - Spacing.md) / 2;
 const TICKETS_CARD_WIDTH = 156;
+const DEFAULT_CONCERT_IMAGE = 'https://www.figma.com/api/mcp/asset/7a4139ba-d999-4c2d-8914-478bca60d42a';
 
 interface Props {
   concert: Concert;
@@ -17,6 +18,35 @@ interface Props {
 export default function ConcertCard({ concert, onPress, fullWidth, variant = 'default' }: Props) {
   const isTicketsVariant = variant === 'tickets';
   const width = fullWidth ? '100%' : isTicketsVariant ? TICKETS_CARD_WIDTH : CARD_WIDTH;
+  const imageUri = concert.image_url || DEFAULT_CONCERT_IMAGE;
+  const artistTitle = concert.artist?.name || concert.title.replace(/\s+concert$/i, '');
+  const city = concert.venue?.city || concert.venue?.name || 'San Diego';
+  const formattedDate = new Date(concert.date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  if (isTicketsVariant) {
+    return (
+      <TouchableOpacity
+        style={styles.ticketCard}
+        onPress={onPress}
+        activeOpacity={0.82}
+      >
+        <Image source={{ uri: imageUri }} style={styles.ticketImage} />
+        <View style={styles.ticketInfoOverlay}>
+          <Image source={{ uri: imageUri }} style={styles.ticketOverlayBlur} blurRadius={25} />
+          <View style={styles.ticketOverlayTint} />
+          <View style={styles.ticketTextBlock}>
+            <Text style={styles.ticketTitle} numberOfLines={1}>{artistTitle}</Text>
+            <Text style={styles.ticketCity} numberOfLines={1}>{city}</Text>
+            <Text style={styles.ticketDate} numberOfLines={1}>{formattedDate}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
 
   return (
     <TouchableOpacity
@@ -29,11 +59,10 @@ export default function ConcertCard({ concert, onPress, fullWidth, variant = 'de
       activeOpacity={0.8}
     >
       <Image
-        source={{ uri: concert.image_url || 'https://via.placeholder.com/300x200/FF0082/ffffff?text=Concert' }}
+        source={{ uri: imageUri }}
         style={[
           styles.image,
           fullWidth && styles.imageFull,
-          isTicketsVariant && styles.imageTickets,
         ]}
       />
       <View style={[styles.info, isTicketsVariant && styles.infoTickets]}>
@@ -59,6 +88,73 @@ export default function ConcertCard({ concert, onPress, fullWidth, variant = 'de
 }
 
 const styles = StyleSheet.create({
+  ticketCard: {
+    width: TICKETS_CARD_WIDTH,
+    height: 258,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.white,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  ticketImage: {
+    width: '100%',
+    height: 190,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.borderLight,
+  },
+  ticketInfoOverlay: {
+    height: 116,
+    marginTop: -48,
+    borderBottomLeftRadius: BorderRadius.lg,
+    borderBottomRightRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  ticketOverlayBlur: {
+    ...StyleSheet.absoluteFillObject,
+    transform: [{ scale: 1.08 }],
+  },
+  ticketOverlayTint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.72)',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  ticketTextBlock: {
+    height: 95,
+    paddingHorizontal: Spacing.sm,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ticketTitle: {
+    width: '100%',
+    fontFamily: Fonts.body16.fontFamily,
+    fontSize: Fonts.body16.fontSize,
+    lineHeight: Fonts.body16.lineHeight,
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  ticketCity: {
+    width: '100%',
+    marginTop: Spacing.xs,
+    fontFamily: Fonts.body14.fontFamily,
+    fontSize: Fonts.body14.fontSize,
+    lineHeight: Fonts.body14.lineHeight,
+    color: Colors.neutral700,
+    textAlign: 'center',
+  },
+  ticketDate: {
+    width: '100%',
+    marginTop: Spacing.xs,
+    fontFamily: Fonts.medium.fontFamily,
+    fontSize: 14,
+    lineHeight: 18,
+    color: Colors.neutral700,
+    textAlign: 'center',
+  },
   card: {
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,

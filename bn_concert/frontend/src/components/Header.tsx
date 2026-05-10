@@ -1,41 +1,72 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { Colors, Fonts, Spacing, ComponentSizes } from '../constants/theme';
+import { useRouter } from 'expo-router';
+import { Colors, Fonts, Spacing } from '../constants/theme';
 
 interface HeaderProps {
   onMenuPress?: () => void;
   onProfilePress?: () => void;
+  onLogoPress?: () => void;
+  onSearchPress?: () => void;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
   containerStyle?: ViewStyle;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuPress, onProfilePress, containerStyle }) => {
+const Header: React.FC<HeaderProps> = ({
+  onMenuPress,
+  onProfilePress,
+  onLogoPress,
+  onSearchPress,
+  showSearch = false,
+  searchPlaceholder = 'Search here',
+  containerStyle,
+}) => {
+  const router = useRouter();
+
+  const handleLogoPress = () => {
+    if (onLogoPress) {
+      onLogoPress();
+      return;
+    }
+    router.replace('/(tabs)' as never);
+  };
+
   return (
     <View style={[styles.container, containerStyle]}>
-      <Pressable
-        style={styles.logoContainer}
-        hitSlop={8}
-        onPress={() => router.replace('/(tabs)' as never)}
-      >
-        <Text style={styles.logoText}>BNConcert</Text>
-      </Pressable>
-      <View style={styles.iconsContainer}>
-        <Pressable onPress={onProfilePress} hitSlop={8} style={styles.iconButton}>
-          <Ionicons name="person-circle-outline" size={24} color={Colors.neutral700} />
+      <View style={styles.topRow}>
+        <Pressable style={styles.logoContainer} hitSlop={8} onPress={handleLogoPress}>
+          <Text style={styles.logoText}>BNConcert</Text>
         </Pressable>
-        <Pressable onPress={onMenuPress} hitSlop={8} style={styles.menuButton}>
-          <Ionicons name="menu-outline" size={24} color={Colors.neutral700} />
-        </Pressable>
+        <View style={styles.centerSpacer} />
+        <View style={styles.iconsContainer}>
+          <Pressable onPress={onProfilePress} hitSlop={8} style={styles.iconButton}>
+            <Ionicons name="person-circle-outline" size={24} color={Colors.neutral700} />
+          </Pressable>
+          <Pressable onPress={onMenuPress} hitSlop={8} style={styles.iconButton}>
+            <Ionicons name="menu-outline" size={24} color={Colors.neutral700} />
+          </Pressable>
+        </View>
       </View>
+
+      {showSearch ? (
+        <Pressable style={styles.searchBar} onPress={onSearchPress}>
+          <Ionicons name="search-outline" size={16} color={Colors.border} />
+          <Text style={styles.searchPlaceholder}>{searchPlaceholder}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: ComponentSizes.headerHeight,
     backgroundColor: Colors.white,
+    paddingBottom: 0,
+  },
+  topRow: {
+    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -47,17 +78,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logoText: {
-    fontFamily: Fonts.logo.fontFamily,
-    fontSize: Fonts.logo.fontSize,
-    lineHeight: Fonts.logo.lineHeight,
-    color: Fonts.logo.color,
-    letterSpacing: Fonts.logo.letterSpacing,
+    ...Fonts.logo,
     textAlign: 'center',
+  },
+  centerSpacer: {
+    width: 98,
+    height: 19,
   },
   iconsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: Spacing.md,
+    alignItems: 'center',
   },
   iconButton: {
     width: 24,
@@ -65,11 +96,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuButton: {
-    width: 24,
-    height: 18,
+  searchBar: {
+    height: 32,
+    marginTop: Spacing.md,
+    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.borderMedium,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.md,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  searchPlaceholder: {
+    fontFamily: Fonts.caption.fontFamily,
+    fontSize: Fonts.caption.fontSize,
+    lineHeight: Fonts.caption.lineHeight,
+    color: Colors.border,
   },
 });
 

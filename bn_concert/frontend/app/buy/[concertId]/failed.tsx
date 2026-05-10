@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius, Fonts } from '../../../src/constants/theme';
-import { Button } from '../../../src/components';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+
+import { Footer, Header } from '../../../src/components';
+import { BorderRadius, Colors, Fonts, Spacing } from '../../../src/constants/theme';
 import type { PaymentOption } from '../../../src/api/services';
 
 export default function FailedScreen() {
@@ -12,8 +13,8 @@ export default function FailedScreen() {
     error,
     orderId,
     seatIds,
-    insurance,
-    giftCardCode,
+    seatLabels,
+    seatPrices,
     total,
     customerName,
     customerPhone,
@@ -27,8 +28,8 @@ export default function FailedScreen() {
     error: string;
     orderId?: string;
     seatIds: string;
-    insurance: string;
-    giftCardCode: string;
+    seatLabels?: string;
+    seatPrices?: string;
     total: string;
     customerName: string;
     customerPhone: string;
@@ -50,8 +51,8 @@ export default function FailedScreen() {
       pathname: `/buy/${concertId}/payment`,
       params: {
         seatIds: seatIds || '',
-        insurance: insurance || '0',
-        giftCardCode: giftCardCode || '',
+        seatLabels: seatLabels || '',
+        seatPrices: seatPrices || '',
         total: total || '0',
         customerName: customerName || '',
         customerPhone: customerPhone || '',
@@ -67,70 +68,115 @@ export default function FailedScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.iconWrap}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Header showSearch />
+
+      <View style={styles.messageStage}>
         <View style={styles.iconCircle}>
-          <Ionicons name="close" size={64} color={Colors.white} />
+          <Ionicons name="close" size={30} color={Colors.white} />
         </View>
+        <Text style={styles.title}>Sorry, Payment failed</Text>
+        <Text style={styles.subtitle}>
+          {error || 'Unfortunately, your order cannot be completed. Please try a different payment method.'}
+        </Text>
+        {orderId ? <Text style={styles.orderText}>Order {orderId.slice(0, 8).toUpperCase()}</Text> : null}
+
+        <TouchableOpacity activeOpacity={0.8} onPress={() => navigateToPayment(false)} style={styles.primaryButton}>
+          <Text style={styles.primaryButtonText}>Retry Payment</Text>
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.75} onPress={() => navigateToPayment(true)} style={styles.secondaryButton}>
+          <Text style={styles.secondaryButtonText}>Change Method</Text>
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.75} onPress={() => router.replace('/(tabs)')} style={styles.linkButton}>
+          <Text style={styles.linkButtonText}>Back to Homepage</Text>
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Payment Failed</Text>
-      <Text style={styles.subtitle}>
-        {error || 'Something went wrong. Please try again.'}
-      </Text>
-
-      {orderId ? (
-        <View style={styles.orderBadge}>
-          <Text style={styles.orderBadgeText}>Order {orderId.slice(0, 8).toUpperCase()}</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.actions}>
-        <Button title="Retry Payment" onPress={() => navigateToPayment(false)} />
-        <Button title="Change Method" onPress={() => navigateToPayment(true)} variant="outline" />
-        <Button title="Back to Home" onPress={() => router.replace('/(tabs)')} variant="outline" />
-      </View>
-    </View>
+      <Footer containerStyle={styles.footer} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.xl,
+    backgroundColor: Colors.white,
   },
-  iconWrap: { marginBottom: Spacing.xl },
+  content: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    width: 360,
+  },
+  messageStage: {
+    alignItems: 'center',
+    minHeight: 430,
+    paddingHorizontal: 20,
+    paddingTop: 86,
+  },
   iconCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: Colors.error,
-    justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.error,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    backgroundColor: Colors.error,
+    borderRadius: 24,
+    height: 48,
+    justifyContent: 'center',
+    width: 48,
   },
-  title: { ...Fonts.h1, marginBottom: Spacing.sm },
-  subtitle: {
-    ...Fonts.medium,
-    color: Colors.textSecondary,
+  title: {
+    ...Fonts.h1,
+    color: Colors.text,
+    fontSize: 28,
+    lineHeight: 34,
+    marginTop: 24,
     textAlign: 'center',
-    marginBottom: Spacing.md,
-    paddingHorizontal: Spacing.lg,
   },
-  orderBadge: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    backgroundColor: `${Colors.error}15`,
-    borderRadius: BorderRadius.full,
-    marginBottom: Spacing.xl,
+  subtitle: {
+    ...Fonts.body14,
+    color: Colors.neutral700,
+    lineHeight: 24,
+    marginTop: 18,
+    textAlign: 'center',
   },
-  orderBadgeText: { ...Fonts.caption, color: Colors.error, fontSize: 12, fontFamily: Fonts.bold.fontFamily },
-  actions: { width: '100%', gap: Spacing.sm },
+  orderText: {
+    ...Fonts.body12,
+    color: Colors.error,
+    marginTop: Spacing.md,
+    textAlign: 'center',
+  },
+  primaryButton: {
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.lg,
+    height: 40,
+    justifyContent: 'center',
+    marginTop: 32,
+    width: 202,
+  },
+  primaryButtonText: {
+    ...Fonts.button14,
+    color: Colors.white,
+  },
+  secondaryButton: {
+    alignItems: 'center',
+    borderColor: Colors.neutral700,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: 'center',
+    marginTop: 16,
+    width: 202,
+  },
+  secondaryButtonText: {
+    ...Fonts.button14,
+    color: Colors.neutral700,
+  },
+  linkButton: {
+    marginTop: 16,
+  },
+  linkButtonText: {
+    ...Fonts.body12,
+    color: Colors.neutral700,
+  },
+  footer: {
+    marginTop: 0,
+  },
 });

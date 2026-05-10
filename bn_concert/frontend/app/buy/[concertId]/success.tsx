@@ -1,11 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius, Fonts } from '../../../src/constants/theme';
-import { Button } from '../../../src/components';
+
+import { Footer, Header } from '../../../src/components';
 import { concertApi, orderApi } from '../../../src/api/services';
+import { BorderRadius, Colors, Fonts, Spacing } from '../../../src/constants/theme';
 import type { Order, Ticket } from '../../../src/types';
+
+const CONFETTI = [
+  [20, 118], [75, 105], [132, 119], [198, 108], [263, 121], [319, 108],
+  [12, 230], [58, 258], [293, 239], [336, 260], [31, 337], [103, 369],
+  [203, 354], [292, 382], [330, 354],
+] as const;
 
 export default function SuccessScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
@@ -13,7 +20,7 @@ export default function SuccessScreen() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [concertTitle, setConcertTitle] = useState<string>('Concert');
+  const [concertTitle, setConcertTitle] = useState('Concert');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,13 +53,13 @@ export default function SuccessScreen() {
     loadSummary();
   }, [orderId]);
 
-  const seatSummary = useMemo(() => {
-    const labels = order?.items
-      ?.map((item) => item.seat_label)
-      .filter((value): value is string => Boolean(value));
-    if (!labels || labels.length === 0) return 'Seats assigned at venue';
-    return labels.join(', ');
-  }, [order?.items]);
+  const email = order?.customer_snapshot?.customer_email || 'Sylvievanbeek@gmail.com';
+  const ticketCount = tickets.length || order?.items.length || 0;
+
+  const message = useMemo(() => {
+    if (ticketCount > 0) return `Your ${ticketCount} ticket${ticketCount > 1 ? 's are' : ' is'} in your mailbox`;
+    return 'Your tickets are in your mailbox';
+  }, [ticketCount]);
 
   if (loading) {
     return (
@@ -63,152 +70,134 @@ export default function SuccessScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.iconWrap}>
-        <View style={styles.iconCircle}>
-          <Ionicons name="checkmark" size={64} color={Colors.white} />
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Header showSearch />
+
+      <View style={styles.messageStage}>
+        {CONFETTI.map(([left, top], index) => (
+          <View key={`${left}-${top}-${index}`} style={[styles.confetti, { left, top, transform: [{ rotate: `${index * 17}deg` }] }]} />
+        ))}
+
+        <View style={styles.thankRow}>
+          <Text style={styles.thankTitle}>Thank you!</Text>
+          <Ionicons name="happy-outline" size={18} color={Colors.success} />
         </View>
+        <Text style={styles.successTitle}>Your purchase was successful</Text>
+        <Text style={styles.successSubtitle}>{message}</Text>
+        <Text style={styles.emailText}>{email}</Text>
+        <Text numberOfLines={1} style={styles.concertText}>{concertTitle}</Text>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => router.replace('/dashboard/tickets')}
+          style={styles.primaryButton}
+        >
+          <Text style={styles.primaryButtonText}>Download Your Tickets</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.75}
+          onPress={() => router.replace('/(tabs)')}
+          style={styles.secondaryButton}
+        >
+          <Text style={styles.secondaryButtonText}>Back to Homepage</Text>
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Payment Successful!</Text>
-      <Text style={styles.subtitle}>Your order is confirmed and your e-tickets are ready.</Text>
-
-      {orderId ? (
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>Order ID</Text>
-          <Text style={styles.orderId}>{orderId}</Text>
-          {!!order?.created_at && (
-            <Text style={styles.metaText}>
-              {new Date(order.created_at).toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          )}
-        </View>
-      ) : null}
-
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Order Summary</Text>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Concert</Text>
-          <Text style={styles.summaryValue}>{concertTitle}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Tickets</Text>
-          <Text style={styles.summaryValue}>{order?.items.length ?? tickets.length}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Seats</Text>
-          <Text style={styles.summaryValue}>{seatSummary}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Payment Method</Text>
-          <Text style={styles.summaryValue}>{order?.payment_method || 'Completed'}</Text>
-        </View>
-        <View style={[styles.summaryRow, styles.totalRow]}>
-          <Text style={styles.totalLabel}>Total Paid</Text>
-          <Text style={styles.totalValue}>${order?.total.toFixed(2) ?? '0.00'}</Text>
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>E-Ticket Info</Text>
-        <Text style={styles.ticketDescription}>
-          Your e-tickets can be accessed from Dashboard → Tickets.
-        </Text>
-        {tickets.length > 0 ? (
-          tickets.slice(0, 3).map((ticket, index) => (
-            <View key={ticket.id} style={styles.ticketRow}>
-              <Ionicons name="ticket-outline" size={16} color={Colors.primary} />
-              <Text style={styles.ticketText}>
-                Ticket {index + 1}: {ticket.qr_code}
-              </Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.ticketEmpty}>Your tickets will appear shortly.</Text>
-        )}
-        {order?.customer_snapshot?.customer_email ? (
-          <Text style={styles.ticketMeta}>
-            Confirmation sent to: {order.customer_snapshot.customer_email}
-          </Text>
-        ) : null}
-      </View>
-
-      <View style={styles.actions}>
-        <Button title="View Tickets" onPress={() => router.replace('/dashboard/tickets')} />
-        <Button title="Back to Home" onPress={() => router.replace('/(tabs)')} variant="outline" />
-      </View>
+      <Footer containerStyle={styles.footer} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: Spacing.lg, paddingBottom: Spacing.xl },
-  loadingContainer: {
+  container: {
     flex: 1,
-    backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: Colors.white,
   },
-  iconWrap: { alignItems: 'center', marginBottom: Spacing.md, marginTop: Spacing.md },
-  iconCircle: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
+  content: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    width: 360,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  messageStage: {
+    alignItems: 'center',
+    height: 405,
+    position: 'relative',
+  },
+  confetti: {
     backgroundColor: Colors.success,
-    justifyContent: 'center',
+    height: 6,
+    opacity: 0.7,
+    position: 'absolute',
+    width: 6,
+  },
+  thankRow: {
     alignItems: 'center',
-    shadowColor: Colors.success,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  title: { ...Fonts.h1, textAlign: 'center' },
-  subtitle: {
-    ...Fonts.medium,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.md,
-  },
-  card: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginTop: Spacing.sm,
-  },
-  cardLabel: { ...Fonts.caption, marginBottom: 4 },
-  orderId: { ...Fonts.bold, fontSize: 13, color: Colors.primary },
-  metaText: { ...Fonts.caption, marginTop: Spacing.xs },
-  sectionTitle: { ...Fonts.bold, fontSize: 15, marginBottom: Spacing.sm },
-  summaryRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 4,
-    gap: Spacing.md,
-  },
-  summaryLabel: { ...Fonts.caption, fontSize: 13 },
-  summaryValue: { ...Fonts.medium, flex: 1, textAlign: 'right', fontSize: 14 },
-  totalRow: { marginTop: Spacing.xs, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: Spacing.sm },
-  totalLabel: { ...Fonts.bold, fontSize: 15 },
-  totalValue: { ...Fonts.bold, fontSize: 18, color: Colors.primary },
-  ticketDescription: { ...Fonts.caption, marginBottom: Spacing.sm, fontSize: 13 },
-  ticketRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: Spacing.sm,
-    paddingVertical: 4,
+    marginTop: 92,
   },
-  ticketText: { ...Fonts.caption, color: Colors.text, flex: 1, fontSize: 13 },
-  ticketMeta: { ...Fonts.caption, marginTop: Spacing.sm, fontSize: 12 },
-  ticketEmpty: { ...Fonts.caption, color: Colors.textSecondary },
-  actions: { marginTop: Spacing.md, gap: Spacing.sm },
+  thankTitle: {
+    ...Fonts.heading18,
+    color: Colors.success,
+  },
+  successTitle: {
+    ...Fonts.heading18,
+    color: Colors.success,
+    marginTop: 22,
+    textAlign: 'center',
+  },
+  successSubtitle: {
+    ...Fonts.body12,
+    color: Colors.success,
+    marginTop: 18,
+    textAlign: 'center',
+  },
+  emailText: {
+    ...Fonts.body12,
+    color: Colors.success,
+    textAlign: 'center',
+  },
+  concertText: {
+    ...Fonts.body10,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
+    maxWidth: 260,
+    textAlign: 'center',
+  },
+  primaryButton: {
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.lg,
+    height: 40,
+    justifyContent: 'center',
+    marginTop: 34,
+    width: 202,
+  },
+  primaryButtonText: {
+    ...Fonts.button14,
+    color: Colors.white,
+  },
+  secondaryButton: {
+    alignItems: 'center',
+    borderColor: Colors.neutral700,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: 'center',
+    marginTop: 16,
+    width: 202,
+  },
+  secondaryButtonText: {
+    ...Fonts.button14,
+    color: Colors.neutral700,
+  },
+  footer: {
+    marginTop: 0,
+  },
 });

@@ -36,6 +36,8 @@ const PRIMARY_MENU_ITEMS: ReadonlyArray<{
   { label: 'Help', icon: 'help-circle-outline', route: '/dashboard/help' },
 ];
 
+const DEFAULT_AVATAR_URI = 'https://www.figma.com/api/mcp/asset/908223a0-aa72-457f-9a17-07eb9adc22cb';
+
 function getActiveDashboardRoute(pathname: string): DashboardRoute {
   if (pathname === '/dashboard/contact' || pathname.startsWith('/dashboard/contact/')) {
     return '/dashboard/contact';
@@ -146,13 +148,7 @@ export default function ProfileScreen() {
         </Pressable>
 
         <View style={styles.profileBlock}>
-          {user.avatar_url ? (
-            <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.initials}>{initials}</Text>
-            </View>
-          )}
+          <Image source={{ uri: user.avatar_url || DEFAULT_AVATAR_URI }} style={styles.avatar} />
           <Text style={styles.name}>{fullName}</Text>
         </View>
 
@@ -162,7 +158,7 @@ export default function ProfileScreen() {
               item,
               index === PRIMARY_MENU_ITEMS.length - 1,
               false,
-              activeRoute === item.route
+              false
             )
           )}
         </View>

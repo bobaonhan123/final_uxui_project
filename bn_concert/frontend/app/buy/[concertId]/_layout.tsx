@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Stack, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, Fonts } from '../../../src/constants/theme';
+import { Header } from '../../../src/components';
 
 const STEPS = [
   { label: 'Date' },
@@ -72,15 +73,12 @@ export default function BuyLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.background },
+        headerStyle: { backgroundColor: Colors.white },
         headerTitleAlign: 'center',
         headerShadowVisible: false,
         header: ({ options }) => (
-          <View style={[styles.header, { paddingTop: Math.max(insets.top + Spacing.sm, 20) }]}>
-            <View style={styles.headerTop}>
-              <Text style={styles.headerTitle}>{options.title || 'Buy Tickets'}</Text>
-            </View>
-            <StepIndicator />
+          <View style={[styles.header, { paddingTop: insets.top }]}>
+            <Header showSearch searchPlaceholder="Search here" />
           </View>
         ),
       }}
@@ -105,9 +103,7 @@ export default function BuyLayout() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: Colors.white,
-    paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
+    borderBottomWidth: 0,
   },
   headerTop: {
     alignItems: 'center',

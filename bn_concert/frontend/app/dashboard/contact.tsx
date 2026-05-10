@@ -12,10 +12,11 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, BorderRadius, Fonts } from '../../src/constants/theme';
 import { supportApi } from '../../src/api/services';
 import { useAuth } from '../../src/context/AuthContext';
-import { Button } from '../../src/components';
+import { Button, Header } from '../../src/components';
 
 type ServiceModal = 'email' | 'chat' | 'call' | null;
 
@@ -131,59 +132,64 @@ export default function ContactScreen() {
 
   return (
     <>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Text style={styles.sectionLabel}>Customer Service</Text>
-        <Text style={styles.pageTitle}>How can we help you?</Text>
-        <Text style={styles.pageSubtitle}>
-          Have a question? We may already have the answer for you! Check out our Frequently Asked Questions (FAQ) section below.
-        </Text>
+      <SafeAreaView style={styles.container}>
+        <Header
+          showSearch
+          onSearchPress={() => router.push('/(tabs)/search' as never)}
+          onProfilePress={() => router.push('/(tabs)/profile' as never)}
+        />
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <Text style={styles.sectionLabel}>Customer Service</Text>
+          <Text style={styles.pageTitle}>How can we help you?</Text>
+          <Text style={styles.pageSubtitle}>
+            Have a question? We may already have the answer for you! Check out our Frequently Asked Questions (FAQ) section below.
+          </Text>
 
-        <Text style={styles.faqSectionTitle}>Frequently asked questions</Text>
-        <View style={styles.faqList}>
-          {FAQ_ITEMS.map((item) => {
-            const expanded = item.id === expandedFaqId;
-            return (
-              <Pressable
-                key={item.id}
-                style={[styles.faqItem, expanded ? styles.faqItemExpanded : null]}
-                onPress={() => setExpandedFaqId(expanded ? '' : item.id)}
-              >
-                <View style={styles.faqItemHeader}>
-                  <Text style={styles.faqQuestion}>{item.question}</Text>
-                  <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={Colors.neutral700} />
-                </View>
-                {expanded ? <Text style={styles.faqAnswer}>{item.answer}</Text> : null}
-              </Pressable>
-            );
-          })}
+          <Text style={styles.faqSectionTitle}>Frequently asked questions</Text>
+          <View style={styles.faqList}>
+            {FAQ_ITEMS.map((item) => {
+              const expanded = item.id === expandedFaqId;
+              return (
+                <Pressable
+                  key={item.id}
+                  style={[styles.faqItem, expanded ? styles.faqItemExpanded : null]}
+                  onPress={() => setExpandedFaqId(expanded ? '' : item.id)}
+                >
+                  <View style={[styles.faqItemHeader, expanded && styles.faqItemHeaderExpanded]}>
+                    <Text style={styles.faqQuestion}>{item.question}</Text>
+                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={Colors.neutral700} />
+                  </View>
+                  {expanded ? <Text style={styles.faqAnswer}>{item.answer}</Text> : null}
+                </Pressable>
+              );
+            })}
 
-          <Pressable style={styles.seeMoreButton} onPress={() => router.push('/dashboard/help' as never)}>
-            <Ionicons name="arrow-back" size={16} color={Colors.white} />
-            <Text style={styles.seeMoreText}>See More</Text>
-            <Ionicons name="arrow-forward" size={16} color={Colors.white} />
-          </Pressable>
-        </View>
+            <Pressable style={styles.seeMoreButton} onPress={() => router.push('/dashboard/help' as never)}>
+              <Text style={styles.seeMoreText}>See More</Text>
+            </Pressable>
+          </View>
 
-        <Text style={styles.helpTitle}>Can't find what you are looking for?</Text>
-        <Text style={styles.helpSubtitle}>Our self-help center is the fastest place to get help.</Text>
+          <Text style={styles.helpTitle}>Can't find what you are looking for?</Text>
+          <Text style={styles.helpSubtitle}>Our self-help center is the fastest place to get help.</Text>
 
-        <View style={styles.serviceRow}>
-          <Pressable style={styles.serviceCard} onPress={() => setActiveModal('email')}>
-            <Ionicons name="mail-outline" size={24} color={Colors.primary} />
-            <Text style={styles.serviceText}>Send Us an Email</Text>
-          </Pressable>
+          <View style={styles.serviceRow}>
+            <Pressable style={styles.serviceCard} onPress={() => setActiveModal('email')}>
+              <Ionicons name="mail-outline" size={24} color={Colors.primary} />
+              <Text style={styles.serviceText}>Send Us an Email</Text>
+            </Pressable>
 
-          <Pressable style={styles.serviceCard} onPress={() => setActiveModal('chat')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.primary} />
-            <Text style={styles.serviceText}>Live Chat</Text>
-          </Pressable>
+            <Pressable style={styles.serviceCard} onPress={() => setActiveModal('chat')}>
+              <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.primary} />
+              <Text style={styles.serviceText}>Live Chat</Text>
+            </Pressable>
 
-          <Pressable style={styles.serviceCard} onPress={() => setActiveModal('call')}>
-            <Ionicons name="call-outline" size={24} color={Colors.primary} />
-            <Text style={styles.serviceText}>Call Us</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
+            <Pressable style={styles.serviceCard} onPress={() => setActiveModal('call')}>
+              <Ionicons name="call-outline" size={24} color={Colors.primary} />
+              <Text style={styles.serviceText}>Call Us</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
 
       <Modal visible={activeModal === 'call'} transparent animationType="fade" onRequestClose={() => setActiveModal(null)}>
         <View style={styles.modalOverlay}>
@@ -297,7 +303,7 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.white,
   },
   content: {
     paddingHorizontal: Spacing.md,
@@ -305,89 +311,100 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xl,
   },
   sectionLabel: {
-    ...Fonts.heading18,
-    color: Colors.text,
-    marginBottom: Spacing.xs,
+    fontFamily: Fonts.heading18.fontFamily,
+    fontSize: Fonts.heading18.fontSize,
+    lineHeight: Fonts.heading18.lineHeight,
+    color: Colors.secondary,
+    marginBottom: 24,
   },
   pageTitle: {
-    ...Fonts.h2,
-    fontSize: 28,
+    fontFamily: Fonts.heading16.fontFamily,
+    fontSize: Fonts.heading16.fontSize,
     lineHeight: 32,
-    marginBottom: Spacing.sm,
+    color: Colors.text,
+    marginBottom: 10,
   },
   pageSubtitle: {
-    ...Fonts.regular,
-    color: Colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: Spacing.lg,
+    fontFamily: Fonts.body12.fontFamily,
+    fontSize: Fonts.body12.fontSize,
+    lineHeight: 14,
+    color: Colors.text,
+    marginBottom: 24,
   },
   faqSectionTitle: {
-    ...Fonts.heading18,
-    color: Colors.text,
-    marginBottom: Spacing.sm,
+    fontFamily: Fonts.heading18.fontFamily,
+    fontSize: Fonts.heading18.fontSize,
+    lineHeight: Fonts.heading18.lineHeight,
+    color: Colors.secondary,
+    marginBottom: Spacing.md,
   },
   faqList: {
     marginBottom: Spacing.lg,
   },
   faqItem: {
-    borderWidth: 1,
-    borderColor: Colors.border,
     borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.white,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 14,
-    marginBottom: Spacing.sm,
+    backgroundColor: Colors.background,
+    marginBottom: Spacing.md,
+    overflow: 'hidden',
   },
   faqItemExpanded: {
-    paddingBottom: Spacing.md,
+    paddingBottom: 0,
   },
   faqItemHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    minHeight: 56,
+    paddingHorizontal: 24,
+    paddingVertical: Spacing.md,
+  },
+  faqItemHeaderExpanded: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
   },
   faqQuestion: {
-    ...Fonts.medium,
+    fontFamily: Fonts.medium.fontFamily,
     fontSize: 14,
-    lineHeight: 20,
-    color: Colors.text,
+    lineHeight: 14,
+    color: '#493D44',
     paddingRight: Spacing.sm,
     flex: 1,
   },
   faqAnswer: {
-    ...Fonts.regular,
-    fontSize: 13,
+    fontFamily: Fonts.regular.fontFamily,
+    fontSize: 14,
     lineHeight: 20,
-    color: Colors.textSecondary,
-    marginTop: Spacing.sm,
+    color: Colors.text,
+    paddingHorizontal: 24,
+    paddingVertical: 18,
   },
   seeMoreButton: {
-    marginTop: Spacing.xs,
+    marginTop: 2,
     alignSelf: 'center',
-    minWidth: 130,
+    minWidth: 117,
     height: 40,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.md,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   seeMoreText: {
-    ...Fonts.button14,
-    color: Colors.white,
-    marginHorizontal: Spacing.sm,
+    fontFamily: Fonts.button14.fontFamily,
+    fontSize: Fonts.button14.fontSize,
+    lineHeight: Fonts.button14.lineHeight,
+    color: Colors.neutral700,
   },
   helpTitle: {
-    ...Fonts.medium,
+    fontFamily: Fonts.heading16.fontFamily,
     fontSize: 16,
-    lineHeight: 20,
-    marginBottom: Spacing.sm,
+    lineHeight: 32,
+    color: Colors.secondary,
+    marginBottom: Spacing.md,
   },
   helpSubtitle: {
-    ...Fonts.regular,
-    color: Colors.textSecondary,
-    lineHeight: 22,
+    fontFamily: Fonts.heading16.fontFamily,
+    fontSize: 16,
+    lineHeight: 32,
+    color: Colors.secondary,
     marginBottom: Spacing.md,
   },
   serviceRow: {
@@ -397,20 +414,20 @@ const styles = StyleSheet.create({
   },
   serviceCard: {
     flex: 1,
-    minHeight: 74,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.white,
+    height: 74,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xs,
   },
   serviceText: {
-    ...Fonts.caption,
+    fontFamily: Fonts.body10.fontFamily,
+    fontSize: Fonts.body10.fontSize,
+    lineHeight: Fonts.body10.lineHeight,
     color: Colors.text,
     textAlign: 'center',
-    marginTop: Spacing.xs,
+    marginTop: Spacing.sm,
   },
   modalOverlay: {
     flex: 1,

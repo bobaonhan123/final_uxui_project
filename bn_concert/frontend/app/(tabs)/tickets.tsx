@@ -7,14 +7,13 @@ import {
   ActivityIndicator,
   Pressable,
   RefreshControl,
-  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { BorderRadius, Colors, Fonts, Spacing } from '../../src/constants/theme';
 import { concertApi, type ConcertDateRange } from '../../src/api/services';
-import { Button, ConcertCard, Footer } from '../../src/components';
+import { Button, ConcertCard, Footer, Header } from '../../src/components';
 import type { Concert } from '../../src/types';
 
 type FilterOption = { label: string; value: string };
@@ -41,6 +40,7 @@ export default function TicketsScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const displayConcerts = concerts;
 
   const fetchFilterOptions = useCallback(async () => {
     try {
@@ -133,7 +133,7 @@ export default function TicketsScreen() {
     ) : null;
 
   const renderFooter = () =>
-    concerts.length > 0 ? (
+    displayConcerts.length > 0 ? (
       <View style={styles.footerWrap}>
         {hasMore ? (
           <Button
@@ -148,48 +148,40 @@ export default function TicketsScreen() {
     ) : null;
 
   const renderFilterChips = (
-    title: string,
+    label: string,
     options: readonly FilterOption[],
     selectedValue: string,
     onSelect: (value: string) => void,
   ) => (
-    <View style={styles.filterGroup}>
-      <Text style={styles.filterLabel}>{title}</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterRow}
-      >
-        {options.map((item) => {
-          const active = selectedValue === item.value;
-          return (
-            <Pressable
-              key={`${title}-${item.value}`}
-              style={[styles.chip, active && styles.chipActive]}
-              onPress={() => onSelect(item.value)}
-            >
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>{item.label}</Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-    </View>
+    <Pressable
+      style={styles.filterPill}
+      onPress={() => {
+        const currentIndex = options.findIndex((item) => item.value === selectedValue);
+        const nextOption = options[(currentIndex + 1) % options.length] || options[0];
+        onSelect(nextOption.value);
+      }}
+    >
+      <Text style={styles.filterPillText}>
+        {selectedValue === 'all' ? label : options.find((item) => item.value === selectedValue)?.label || label}
+      </Text>
+      <Ionicons name="chevron-down" size={16} color={Colors.neutral700} />
+    </Pressable>
   );
 
   const renderHeader = () => (
     <View>
-      <View style={styles.header}>
-        <Pressable hitSlop={8} onPress={() => router.replace('/(tabs)' as never)}>
-          <Text style={styles.logo}>BNConcert</Text>
-        </Pressable>
-      </View>
+      <Header
+        showSearch
+        onSearchPress={() => router.push('/(tabs)/search' as never)}
+        onProfilePress={() => router.push('/(tabs)/profile' as never)}
+      />
 
       <View style={styles.filters}>
-        {renderFilterChips('Genre', genreOptions, genreFilter, setGenreFilter)}
+        {renderFilterChips('Location', locationOptions, locationFilter, setLocationFilter)}
         {renderFilterChips('Date', DATE_FILTERS, dateFilter, (value) =>
           setDateFilter(value as DateFilterValue),
         )}
-        {renderFilterChips('Location', locationOptions, locationFilter, setLocationFilter)}
+        {renderFilterChips('Category', genreOptions, genreFilter, setGenreFilter)}
       </View>
     </View>
   );
@@ -203,7 +195,7 @@ export default function TicketsScreen() {
         </View>
       ) : (
         <FlatList
-          data={concerts}
+          data={displayConcerts}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           numColumns={2}
@@ -225,10 +217,11 @@ export default function TicketsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.white,
   },
   loaderState: {
     flex: 1,
+    backgroundColor: Colors.white,
   },
   header: {
     height: 104,
@@ -242,53 +235,41 @@ const styles = StyleSheet.create({
   filters: {
     width: 328,
     alignSelf: 'center',
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg - Spacing.xs,
+    marginTop: Spacing.md,
+    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  filterGroup: {
-    gap: Spacing.sm,
-  },
-  filterLabel: {
-    fontFamily: Fonts.medium.fontFamily,
-    fontSize: 12,
-    color: Colors.textSecondary,
-  },
-  filterRow: {
-    gap: Spacing.sm,
-    paddingRight: Spacing.xs,
-  },
-  chip: {
-    minWidth: 106,
+  filterPill: {
+    width: 106,
     height: 36,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 12,
+    paddingRight: 8,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.textLight,
   },
-  chipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  chipText: {
-    fontFamily: Fonts.medium.fontFamily,
+  filterPillText: {
+    fontFamily: Fonts.regular.fontFamily,
     fontSize: 12,
-    color: Colors.textSecondary,
-    paddingHorizontal: Spacing.md - Spacing.xxs,
-  },
-  chipTextActive: {
-    color: Colors.white,
+    lineHeight: 12,
+    color: Colors.text,
+    maxWidth: 76,
   },
   list: {
     paddingBottom: Spacing.xl,
     flexGrow: 1,
+    backgroundColor: Colors.white,
   },
   row: {
     width: 328,
     alignSelf: 'center',
     justifyContent: 'space-between',
-    marginBottom: Spacing.md,
+    marginBottom: 16,
   },
   cardWrapper: {
     width: 156,

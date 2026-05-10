@@ -1,22 +1,27 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
   ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius, Fonts, ComponentSizes } from '../../../src/constants/theme';
+
 import { concertApi } from '../../../src/api/services';
-import type { EventSeat } from '../../../src/types';
+import { Footer } from '../../../src/components';
+import {
+  BuyPriceSlider,
+  BuyStepper,
+  BuyTicketDateCard,
+  FigmaSeatMap,
+} from '../../../src/components/BuyFlowScaffold';
+import { BorderRadius, Colors, Fonts, Spacing } from '../../../src/constants/theme';
+import type { Concert, EventSeat } from '../../../src/types';
 
 const MAX_SEATS = 6;
-const SEAT_SIZE = ComponentSizes.seatSize;
-const SEAT_GAP = Spacing.xs;
 
 export default function SeatsScreen() {
   const { concertId, sectionId, sectionName, sectionPrice } = useLocalSearchParams<{
@@ -26,58 +31,84 @@ export default function SeatsScreen() {
     sectionPrice: string;
   }>();
   const router = useRouter();
+  const [concert, setConcert] = useState<Concert | null>(null);
   const [seats, setSeats] = useState<EventSeat[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  const parsedSectionPrice = Number(sectionPrice || 0);
+
   useEffect(() => {
-    if (!concertId || !sectionId) return;
-    concertApi
-      .getSectionSeats(concertId, sectionId)
-      .then(({ data }) => setSeats(data))
-      .finally(() => setLoading(false));
+    if (!concertId || !sectionId) {
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setLoading(true);
+
+    Promise.allSettled([
+      concertApi.get(concertId),
+      concertApi.getSectionSeats(concertId, sectionId),
+    ])
+      .then(([concertResult, seatsResult]) => {
+        if (!isMounted) return;
+
+        setConcert(concertResult.status === 'fulfilled' ? concertResult.value.data : null);
+        setSeats(seatsResult.status === 'fulfilled' ? seatsResult.value.data : []);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [concertId, sectionId]);
 
-  const rows = useMemo(() => {
-    const grouped: Record<string, EventSeat[]> = {};
-    seats.forEach((s) => {
-      const row = s.seat?.row || '?';
-      if (!grouped[row]) grouped[row] = [];
-      grouped[row].push(s);
-    });
-    return Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b));
-  }, [seats]);
+  const selectedSeats = useMemo(
+    () => seats.filter((seat) => selectedIds.has(seat.id)),
+    [seats, selectedIds],
+  );
 
-  const toggleSeat = (seat: EventSeat) => {
-    if (seat.status !== 'available') return;
+  const displayPrice = selectedSeats[0]?.price || parsedSectionPrice || 600;
+  const selectedSeatLabels = selectedSeats.map((seat) => seat.seat?.label || '');
+
+  const toggleSeat = (seatId: string) => {
+    const seat = seats.find((item) => item.id === seatId);
+    if (!seat || seat.status !== 'available') return;
+
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(seat.id)) {
-        next.delete(seat.id);
-      } else {
-        if (next.size >= MAX_SEATS) {
-          Alert.alert('Limit Reached', `You can select up to ${MAX_SEATS} seats.`);
-          return prev;
-        }
-        next.add(seat.id);
+      if (next.has(seatId)) {
+        next.delete(seatId);
+        return next;
       }
+
+      if (next.size >= MAX_SEATS) {
+        Alert.alert('Limit reached', `You can select up to ${MAX_SEATS} seats.`);
+        return prev;
+      }
+
+      next.add(seatId);
       return next;
     });
   };
 
-  const selectedSeats = seats.filter((s) => selectedIds.has(s.id));
-  const totalPrice = selectedSeats.reduce((sum, s) => sum + s.price, 0);
-  const minSeatPrice = seats.length ? Math.min(...seats.map((s) => s.price)) : 0;
-  const maxSeatPrice = seats.length ? Math.max(...seats.map((s) => s.price)) : 0;
+  const goToConfirm = () => {
+    if (selectedSeats.length === 0) return;
 
-  const getSeatColor = (seat: EventSeat) => {
-    if (selectedIds.has(seat.id)) return Colors.seatSelected;
-    switch (seat.status) {
-      case 'available': return Colors.seatAvailable;
-      case 'sold': return Colors.seatSold;
-      case 'held': return Colors.seatHeld;
-      default: return Colors.border;
-    }
+    router.push({
+      pathname: `/buy/${concertId}/confirm`,
+      params: {
+        sectionId,
+        sectionName,
+        sectionPrice: String(parsedSectionPrice || displayPrice),
+        seatIds: selectedSeats.map((seat) => seat.id).join(','),
+        seatLabels: selectedSeatLabels.join(','),
+        seatPrices: selectedSeats.map((seat) => String(seat.price)).join(','),
+      },
+    });
   };
 
   if (loading) {
@@ -89,222 +120,126 @@ export default function SeatsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Section Info */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionName}>{sectionName}</Text>
-        <Text style={styles.sectionPrice}>${Number(sectionPrice).toFixed(2)} / seat</Text>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <BuyTicketDateCard
+        concert={concert}
+        quantity={selectedSeats.length || 2}
+        price={displayPrice}
+        onChangeDate={() => router.push(`/buy/${concertId}`)}
+      />
+      <BuyStepper currentStep={2} />
+      <BuyPriceSlider price={displayPrice} />
+
+      <View style={styles.mapWrap}>
+        <FigmaSeatMap seats={seats} selectedIds={selectedIds} onToggleSeat={toggleSeat} />
       </View>
 
-      {/* Legend */}
-      <View style={styles.legend}>
-        {[
-          { color: Colors.seatAvailable, label: 'Available' },
-          { color: Colors.seatSelected, label: 'Selected' },
-          { color: Colors.seatSold, label: 'Sold' },
-        ].map(({ color, label }) => (
-          <View key={label} style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: color }]} />
-            <Text style={styles.legendLabel}>{label}</Text>
-          </View>
-        ))}
-      </View>
+      {selectedSeats.length > 0 ? (
+        <Text style={styles.selectionText}>
+          {selectedSeats.length} selected: {selectedSeatLabels.filter(Boolean).join(', ')}
+        </Text>
+      ) : (
+        <Text style={styles.selectionText}>Select your seats from the section plan</Text>
+      )}
 
-      {/* Stage indicator */}
-      <View style={styles.stageContainer}>
-        <View style={styles.stage}>
-          <Text style={styles.stageText}>STAGE</Text>
-        </View>
-      </View>
-
-      <View style={styles.priceInfoRow}>
-        <Text style={styles.priceInfoText}>Price range</Text>
-        <Text style={styles.priceInfoValue}>${minSeatPrice.toFixed(0)} - ${maxSeatPrice.toFixed(0)}</Text>
-      </View>
-
-      {/* Seat Map */}
-      <ScrollView style={styles.seatMap} contentContainerStyle={styles.seatMapContent} showsVerticalScrollIndicator={false}>
-        {rows.map(([row, rowSeats]) => (
-          <View key={row} style={styles.seatRow}>
-            <Text style={styles.rowLabel}>{row}</Text>
-            <View style={styles.seatsContainer}>
-              {rowSeats
-                .sort((a, b) => (a.seat?.number || 0) - (b.seat?.number || 0))
-                .map((seat) => (
-                  <TouchableOpacity
-                    key={seat.id}
-                    style={[styles.seat, { backgroundColor: getSeatColor(seat) }]}
-                    onPress={() => toggleSeat(seat)}
-                    activeOpacity={seat.status === 'available' ? 0.6 : 1}
-                    disabled={seat.status !== 'available' && !selectedIds.has(seat.id)}
-                  >
-                    <Text style={styles.seatLabel}>{seat.seat?.number}</Text>
-                  </TouchableOpacity>
-                ))}
-            </View>
-            <Text style={styles.rowLabel}>{row}</Text>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Bottom Selection Summary */}
-      <View style={styles.bottomBar}>
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={styles.resetButton}
-            activeOpacity={0.8}
-            onPress={() => setSelectedIds(new Set())}
-          >
-            <Text style={styles.resetText}>Reset</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.selectButton, selectedSeats.length === 0 && styles.selectButtonDisabled]}
-            activeOpacity={0.8}
-            disabled={selectedSeats.length === 0}
-            onPress={() => {
-              if (selectedSeats.length === 0) return;
-              router.push({
-                pathname: `/buy/${concertId}/confirm`,
-                params: {
-                  sectionId,
-                  sectionName,
-                  seatIds: selectedSeats.map((s) => s.id).join(','),
-                  seatLabels: selectedSeats.map((s) => s.seat?.label || '').join(','),
-                  seatPrices: selectedSeats.map((s) => String(s.price)).join(','),
-                },
-              });
-            }}
-          >
-            <Text style={styles.selectText}>Select</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryText}>
-            {selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''} selected
-          </Text>
-          <Text style={styles.summaryTotal}>${totalPrice.toFixed(2)}</Text>
-        </View>
+      <View style={styles.actionRow}>
         <TouchableOpacity
-          style={[styles.continueButton, selectedSeats.length === 0 && styles.continueButtonDisabled]}
-          onPress={() => {
-            if (selectedSeats.length === 0) return;
-            router.push({
-              pathname: `/buy/${concertId}/confirm`,
-              params: {
-                sectionId,
-                sectionName,
-                seatIds: selectedSeats.map((s) => s.id).join(','),
-                seatLabels: selectedSeats.map((s) => s.seat?.label || '').join(','),
-                seatPrices: selectedSeats.map((s) => String(s.price)).join(','),
-              },
-            });
-          }}
-          disabled={selectedSeats.length === 0}
-          activeOpacity={0.8}
+          activeOpacity={0.75}
+          onPress={() => router.push(`/buy/${concertId}`)}
+          style={styles.secondaryButton}
         >
-          <Text style={styles.continueButtonText}>Continue</Text>
-          <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+          <Text style={styles.secondaryButtonText}>Change date</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          disabled={selectedSeats.length === 0}
+          onPress={goToConfirm}
+          style={[styles.primaryButton, selectedSeats.length === 0 && styles.primaryButtonDisabled]}
+        >
+          <Text style={[styles.primaryButtonText, selectedSeats.length === 0 && styles.primaryButtonTextDisabled]}>
+            Buy Ticket
+          </Text>
         </TouchableOpacity>
       </View>
-    </View>
+
+      <Footer containerStyle={styles.footer} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  sectionHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md,
-    backgroundColor: Colors.surface,
-  },
-  sectionName: { ...Fonts.bold, fontSize: 16 },
-  sectionPrice: { ...Fonts.medium, color: Colors.primary },
-  legend: {
-    flexDirection: 'row', justifyContent: 'center', gap: Spacing.md,
-    paddingVertical: Spacing.sm, borderBottomWidth: 1, borderBottomColor: Colors.border,
-  },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  legendDot: { width: 12, height: 12, borderRadius: 3 },
-  legendLabel: { ...Fonts.caption, fontSize: 11 },
-  priceInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
-  },
-  priceInfoText: { ...Fonts.caption, color: Colors.textSecondary },
-  priceInfoValue: { ...Fonts.bold, color: Colors.primary, fontSize: 14 },
-  stageContainer: { alignItems: 'center', paddingVertical: Spacing.md },
-  stage: {
-    width: 200, paddingVertical: 8,
-    backgroundColor: Colors.surface, borderRadius: BorderRadius.sm,
-    borderWidth: 1, borderColor: Colors.border, alignItems: 'center',
-  },
-  stageText: { ...Fonts.caption, fontFamily: Fonts.bold.fontFamily, letterSpacing: 2 },
-  seatMap: { flex: 1, paddingHorizontal: Spacing.md },
-  seatRow: {
-    flexDirection: 'row', alignItems: 'center',
-    marginBottom: SEAT_GAP, justifyContent: 'center',
-  },
-  rowLabel: { width: 28, textAlign: 'center', ...Fonts.caption, fontFamily: Fonts.medium.fontFamily },
-  seatsContainer: {
-    flexDirection: 'row', flexWrap: 'wrap',
-    justifyContent: 'center', gap: SEAT_GAP, marginHorizontal: Spacing.sm,
-  },
-  seatMapContent: {
-    paddingBottom: 160,
-  },
-  seat: {
-    width: SEAT_SIZE, height: SEAT_SIZE, borderRadius: 6,
-    justifyContent: 'center', alignItems: 'center',
-  },
-  seatLabel: { fontSize: 10, fontFamily: Fonts.bold.fontFamily, color: Colors.white },
-  bottomBar: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: Colors.background, borderTopWidth: 1, borderTopColor: Colors.border,
-    padding: Spacing.md, paddingBottom: Spacing.lg,
-  },
-  summaryRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: Spacing.sm,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    marginBottom: Spacing.sm,
-  },
-  resetButton: {
+  container: {
     flex: 1,
-    minHeight: ComponentSizes.inputHeight,
-    borderRadius: BorderRadius.md,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Colors.white,
   },
-  resetText: { ...Fonts.medium, color: Colors.text, fontSize: 14 },
-  selectButton: {
-    flex: 1,
-    minHeight: ComponentSizes.inputHeight,
-    borderRadius: BorderRadius.md,
+  content: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    paddingHorizontal: Spacing.md,
+    width: 360,
+  },
+  center: {
     alignItems: 'center',
+    backgroundColor: Colors.white,
+    flex: 1,
     justifyContent: 'center',
+  },
+  mapWrap: {
+    marginTop: 8,
+  },
+  selectionText: {
+    ...Fonts.body10,
+    alignSelf: 'center',
+    color: Colors.textSecondary,
+    lineHeight: 12,
+    marginTop: 8,
+    minHeight: 12,
+    textAlign: 'center',
+    width: 328,
+  },
+  actionRow: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: 328,
+  },
+  secondaryButton: {
+    alignItems: 'center',
+    borderColor: Colors.neutral700,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    height: 32,
+    justifyContent: 'center',
+    width: 97,
+  },
+  secondaryButtonText: {
+    ...Fonts.body10,
+    color: Colors.neutral700,
+    lineHeight: 12,
+  },
+  primaryButton: {
+    alignItems: 'center',
     backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.full,
+    height: 32,
+    justifyContent: 'center',
+    width: 97,
   },
-  selectButtonDisabled: { opacity: 0.5 },
-  selectText: { ...Fonts.bold, color: Colors.white, fontSize: 14 },
-  summaryText: { ...Fonts.medium, color: Colors.textSecondary },
-  summaryTotal: { ...Fonts.bold, fontSize: 20, color: Colors.primary },
-  continueButton: {
-    backgroundColor: Colors.primary, borderRadius: BorderRadius.md,
-    paddingVertical: 16, flexDirection: 'row',
-    justifyContent: 'center', alignItems: 'center', gap: Spacing.sm,
+  primaryButtonDisabled: {
+    backgroundColor: Colors.borderLight,
   },
-  continueButtonDisabled: { opacity: 0.5 },
-  continueButtonText: { ...Fonts.bold, color: Colors.white, fontSize: 16 },
+  primaryButtonText: {
+    ...Fonts.button12,
+    color: Colors.white,
+  },
+  primaryButtonTextDisabled: {
+    color: Colors.textLight,
+  },
+  footer: {
+    marginHorizontal: -Spacing.md,
+    marginTop: 48,
+  },
 });
