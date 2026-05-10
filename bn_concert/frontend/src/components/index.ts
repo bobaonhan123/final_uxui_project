@@ -6,3 +6,4 @@ export { default as BlogCard } from './BlogCard';
 export { default as LoadingScreen } from './LoadingScreen';
 export { default as Footer } from './Footer';
 export { default as Header } from './Header';
+export { default as VirtualAssistant } from './VirtualAssistant';

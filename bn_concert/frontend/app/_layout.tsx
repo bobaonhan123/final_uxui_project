@@ -8,6 +8,7 @@ import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_7
 import { DrSugiyama_400Regular } from '@expo-google-fonts/dr-sugiyama';
 import { AuthProvider } from '../src/context/AuthContext';
 import { Colors } from '../src/constants/theme';
+import { VirtualAssistant } from '../src/components';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -53,6 +54,7 @@ export default function RootLayout() {
             <Stack.Screen name="buy/[concertId]" options={{ presentation: 'modal', headerShown: false }} />
             <Stack.Screen name="dashboard" options={{ headerShown: false }} />
           </Stack>
+          <VirtualAssistant />
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

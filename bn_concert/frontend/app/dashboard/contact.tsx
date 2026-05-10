@@ -210,17 +210,25 @@ export default function ContactScreen() {
       </Modal>
 
       <Modal visible={activeModal === 'chat'} transparent animationType="fade" onRequestClose={() => setActiveModal(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Virtual Assistant</Text>
-            <View style={styles.onlineRow}>
-              <View style={styles.onlineDot} />
-              <Text style={styles.onlineText}>Online</Text>
+        <Pressable style={styles.chatModalOverlay} onPress={() => setActiveModal(null)}>
+          <Pressable style={styles.chatPanel} onPress={() => undefined}>
+            <View style={styles.chatPanelHeader}>
+              <Text style={styles.chatPanelTitle}>Virtual Assistant</Text>
+              <View style={styles.onlineRow}>
+                <View style={styles.onlineDot} />
+                <Text style={styles.onlineText}>Online</Text>
+              </View>
             </View>
-            <Text style={styles.chatGreeting}>
-              Hello Sylvie, I can help you quickly. Otherwise I will forward you to the right person at here or our partners. How can I help you?
-            </Text>
-            <View style={styles.chatInputRow}>
+
+            <View style={styles.chatPanelBody}>
+              <View style={styles.chatGreetingBubble}>
+                <Text style={styles.chatGreeting}>
+                  Hello Sylvie, I can help you quickly. Otherwise I will forward you to the right person at here or our partners. How can I help you?
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.chatComposerBar}>
               <TextInput
                 value={chatInput}
                 onChangeText={setChatInput}
@@ -229,14 +237,11 @@ export default function ContactScreen() {
                 placeholderTextColor={Colors.textLight}
               />
               <Pressable style={styles.chatSendButton}>
-                <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+                <Ionicons name="chevron-forward" size={16} color={Colors.white} />
               </Pressable>
             </View>
-            <Pressable style={styles.modalCloseButton} onPress={() => setActiveModal(null)}>
-              <Text style={styles.modalCloseText}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
       <Modal visible={activeModal === 'email'} transparent animationType="fade" onRequestClose={() => setActiveModal(null)}>
@@ -464,48 +469,96 @@ const styles = StyleSheet.create({
   onlineRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginTop: 8,
   },
   onlineDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: Colors.success,
-    marginRight: Spacing.xs,
+    marginRight: 6,
   },
   onlineText: {
-    ...Fonts.caption,
-    color: Colors.success,
+    fontFamily: Fonts.regular.fontFamily,
+    fontSize: 10,
+    lineHeight: 12,
+    color: Colors.white,
+  },
+  chatModalOverlay: {
+    alignItems: 'center',
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
+  },
+  chatPanel: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    height: 420,
+    maxWidth: 328,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  chatPanelHeader: {
+    backgroundColor: Colors.primary,
+    height: 72,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  chatPanelTitle: {
+    fontFamily: Fonts.medium.fontFamily,
+    fontSize: 12,
+    lineHeight: 16,
+    color: Colors.white,
+  },
+  chatPanelBody: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+  },
+  chatGreetingBubble: {
+    backgroundColor: Colors.white,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    minHeight: 80,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   chatGreeting: {
-    ...Fonts.regular,
-    color: Colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: Spacing.sm,
+    fontFamily: Fonts.regular.fontFamily,
+    fontSize: 8,
+    lineHeight: 10,
+    color: Colors.neutral700,
   },
-  chatInputRow: {
-    flexDirection: 'row',
+  chatComposerBar: {
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    backgroundColor: Colors.background,
+    flexDirection: 'row',
+    height: 56,
+    paddingHorizontal: 10,
   },
   chatInput: {
-    flex: 1,
-    height: 44,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.sm,
-    ...Fonts.regular,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.sm,
     color: Colors.text,
+    flex: 1,
+    fontFamily: Fonts.regular.fontFamily,
+    fontSize: 8,
+    height: 22,
+    lineHeight: 10,
+    minWidth: 0,
+    paddingHorizontal: 10,
+    paddingVertical: 0,
   },
   chatSendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.md,
+    width: 22,
+    height: 22,
+    borderRadius: BorderRadius.sm,
     backgroundColor: Colors.primary,
-    marginLeft: Spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 12,
   },
   formField: {
     marginBottom: Spacing.sm,
