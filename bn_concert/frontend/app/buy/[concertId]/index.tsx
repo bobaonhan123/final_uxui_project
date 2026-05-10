@@ -152,144 +152,146 @@ export default function DateSelectionScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Image
-        source={{ uri: bannerImage }}
-        style={styles.bannerImage}
-      />
+      <View style={styles.body}>
+        <Image
+          source={{ uri: bannerImage }}
+          style={styles.bannerImage}
+        />
 
-      {dateOptions.map((c) => {
-        const dateObj = new Date(c.date);
-        const isSoldOut = c.status === 'sold_out' || c.status === 'sold';
-        const timeLabel = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        {dateOptions.map((c) => {
+          const dateObj = new Date(c.date);
+          const isSoldOut = c.status === 'sold_out' || c.status === 'sold';
+          const timeLabel = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-        return (
-          <TouchableOpacity
-            key={c.displayKey}
-            style={styles.dateCard}
-            onPress={() => router.push(`/buy/${c.routeId}/section`)}
-            activeOpacity={0.7}
-            disabled={isSoldOut}
-          >
-            <View style={[styles.dateBlock, isSoldOut && styles.dateBlockSoldOut]}>
-              <Text style={[styles.dateBlockText, isSoldOut && styles.dateBlockTextSoldOut]}>
-                {dateObj.toLocaleDateString('en-US', { day: 'numeric' })}
-              </Text>
-              <Text style={[styles.dateBlockText, isSoldOut && styles.dateBlockTextSoldOut]}>
-                {dateObj.toLocaleDateString('en-US', { month: 'long' })}
-              </Text>
-              <Text style={[styles.dateBlockText, isSoldOut && styles.dateBlockTextSoldOut]}>
-                {dateObj.toLocaleDateString('en-US', { year: 'numeric' })}
-              </Text>
-            </View>
+          return (
+            <TouchableOpacity
+              key={c.displayKey}
+              style={styles.dateCard}
+              onPress={() => router.push(`/buy/${c.routeId}/section`)}
+              activeOpacity={0.7}
+              disabled={isSoldOut}
+            >
+              <View style={[styles.dateBlock, isSoldOut && styles.dateBlockSoldOut]}>
+                <Text style={[styles.dateBlockText, isSoldOut && styles.dateBlockTextSoldOut]}>
+                  {dateObj.toLocaleDateString('en-US', { day: 'numeric' })}
+                </Text>
+                <Text style={[styles.dateBlockText, isSoldOut && styles.dateBlockTextSoldOut]}>
+                  {dateObj.toLocaleDateString('en-US', { month: 'long' })}
+                </Text>
+                <Text style={[styles.dateBlockText, isSoldOut && styles.dateBlockTextSoldOut]}>
+                  {dateObj.toLocaleDateString('en-US', { year: 'numeric' })}
+                </Text>
+              </View>
 
-            <View style={styles.ticketInfoCard}>
-              <View style={styles.ticketInfoText}>
-                <Text numberOfLines={2} style={styles.ticketTitle}>{c.title}</Text>
-                <View style={styles.metaRow}>
-                  <Ionicons name="ticket-outline" size={16} color={Colors.neutral700} />
-                  <Text style={styles.metaText}>Status: </Text>
-                  <Text style={[styles.statusText, isSoldOut ? styles.soldOutText : styles.availableText]}>
-                    {isSoldOut ? 'Sold Out' : 'Available'}
-                  </Text>
+              <View style={styles.ticketInfoCard}>
+                <View style={styles.ticketInfoText}>
+                  <Text numberOfLines={2} style={styles.ticketTitle}>{c.title}</Text>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="ticket-outline" size={16} color={Colors.neutral700} />
+                    <Text style={styles.metaText}>Status: </Text>
+                    <Text style={[styles.statusText, isSoldOut ? styles.soldOutText : styles.availableText]}>
+                      {isSoldOut ? 'Sold Out' : 'Available'}
+                    </Text>
+                  </View>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="cash-outline" size={16} color={Colors.neutral700} />
+                    <Text numberOfLines={1} style={styles.metaText}>Price: ${c.min_price.toFixed(0)}-{c.max_price.toFixed(0)}</Text>
+                  </View>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="calendar-outline" size={16} color={Colors.neutral700} />
+                    <Text numberOfLines={1} style={styles.metaText}>
+                      {dateObj.toLocaleDateString('en-US', { weekday: 'short' })} {timeLabel}
+                    </Text>
+                  </View>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="location-outline" size={18} color={Colors.neutral700} />
+                    <Text numberOfLines={1} style={styles.metaText}>{c.venue?.city || 'New York'}</Text>
+                  </View>
                 </View>
-                <View style={styles.metaRow}>
-                  <Ionicons name="cash-outline" size={16} color={Colors.neutral700} />
-                  <Text numberOfLines={1} style={styles.metaText}>Price: ${c.min_price.toFixed(0)}-{c.max_price.toFixed(0)}</Text>
-                </View>
-                <View style={styles.metaRow}>
-                  <Ionicons name="calendar-outline" size={16} color={Colors.neutral700} />
-                  <Text numberOfLines={1} style={styles.metaText}>
-                    {dateObj.toLocaleDateString('en-US', { weekday: 'short' })} {timeLabel}
-                  </Text>
-                </View>
-                <View style={styles.metaRow}>
-                  <Ionicons name="location-outline" size={18} color={Colors.neutral700} />
-                  <Text numberOfLines={1} style={styles.metaText}>{c.venue?.city || 'New York'}</Text>
+                <View style={[styles.viewButton, isSoldOut && styles.viewButtonDisabled]}>
+                  <Text style={[styles.viewButtonText, isSoldOut && styles.viewButtonTextDisabled]}>View</Text>
                 </View>
               </View>
-              <View style={[styles.viewButton, isSoldOut && styles.viewButtonDisabled]}>
-                <Text style={[styles.viewButtonText, isSoldOut && styles.viewButtonTextDisabled]}>View</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        );
-      })}
+            </TouchableOpacity>
+          );
+        })}
 
-      <Text style={styles.addressText}>{addressText}</Text>
+        <Text style={styles.addressText}>{addressText}</Text>
 
-      <View style={styles.mapFrame}>
-        <Image source={{ uri: FAKE_MAP_IMAGE }} style={styles.mapImage} resizeMode="cover" />
-        <View style={styles.mapBadge}>
-          <Ionicons name="location" size={16} color={Colors.white} />
-          <Text numberOfLines={1} style={styles.mapBadgeText}>
-            {representativeConcert.venue?.name || 'Concert Stadium'}
-          </Text>
-        </View>
-      </View>
-
-      <Text style={styles.reviewsTitle}>Top reviews on this concert</Text>
-      <TouchableOpacity activeOpacity={0.75} style={styles.reviewFilter}>
-        <Text style={styles.reviewFilterText}>All reviews</Text>
-        <Ionicons name="chevron-down" size={14} color={Colors.neutral700} />
-      </TouchableOpacity>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.reviewScroller}
-        contentContainerStyle={styles.reviewScrollerContent}
-      >
-        {REVIEW_CARDS.map((review) => (
-          <View key={review.id} style={styles.reviewCard}>
-            <View style={styles.reviewHeader}>
-              <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
-              <View style={styles.reviewMeta}>
-                <Text numberOfLines={1} style={styles.reviewName}>{review.name}</Text>
-                <Text style={styles.reviewDate}>{review.date}</Text>
-              </View>
-            </View>
-            <View style={styles.starsRow}>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <Ionicons
-                  key={`${review.id}-star-${index}`}
-                  name={index < review.rating ? 'star' : 'star-outline'}
-                  size={16}
-                  color="#F5A623"
-                />
-              ))}
-            </View>
-            <Text style={styles.reviewBody}>{review.body}</Text>
-            <View style={styles.reviewActions}>
-              <View style={styles.reviewActionGroup}>
-                <Ionicons name="thumbs-up-outline" size={16} color={Colors.neutral700} />
-                <Text style={styles.reviewActionText}>24</Text>
-              </View>
-              <View style={styles.reviewActionGroup}>
-                <Ionicons name="chatbubble-outline" size={16} color={Colors.neutral700} />
-                <Text style={styles.reviewActionText}>Reply</Text>
-              </View>
-            </View>
+        <View style={styles.mapFrame}>
+          <Image source={{ uri: FAKE_MAP_IMAGE }} style={styles.mapImage} resizeMode="cover" />
+          <View style={styles.mapBadge}>
+            <Ionicons name="location" size={16} color={Colors.white} />
+            <Text numberOfLines={1} style={styles.mapBadgeText}>
+              {representativeConcert.venue?.name || 'Concert Stadium'}
+            </Text>
           </View>
-        ))}
-      </ScrollView>
+        </View>
 
-      <Text style={styles.suggestionsTitle}>More suggestions for you</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.suggestionScroller}
-        contentContainerStyle={styles.suggestionScrollerContent}
-      >
-        {suggestionCards.map((item) => (
-          <TouchableOpacity key={item.id} activeOpacity={0.76} style={styles.suggestionCard}>
-            <Image source={{ uri: item.image }} style={styles.suggestionImage} resizeMode="cover" />
-            <View style={styles.suggestionOverlay}>
-              <Text numberOfLines={1} style={styles.suggestionTitle}>{item.title}</Text>
-              <Text numberOfLines={1} style={styles.suggestionSubtitle}>{item.subtitle}</Text>
+        <Text style={styles.reviewsTitle}>Top reviews on this concert</Text>
+        <TouchableOpacity activeOpacity={0.75} style={styles.reviewFilter}>
+          <Text style={styles.reviewFilterText}>All reviews</Text>
+          <Ionicons name="chevron-down" size={14} color={Colors.neutral700} />
+        </TouchableOpacity>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.reviewScroller}
+          contentContainerStyle={styles.reviewScrollerContent}
+        >
+          {REVIEW_CARDS.map((review) => (
+            <View key={review.id} style={styles.reviewCard}>
+              <View style={styles.reviewHeader}>
+                <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
+                <View style={styles.reviewMeta}>
+                  <Text numberOfLines={1} style={styles.reviewName}>{review.name}</Text>
+                  <Text style={styles.reviewDate}>{review.date}</Text>
+                </View>
+              </View>
+              <View style={styles.starsRow}>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Ionicons
+                    key={`${review.id}-star-${index}`}
+                    name={index < review.rating ? 'star' : 'star-outline'}
+                    size={16}
+                    color="#F5A623"
+                  />
+                ))}
+              </View>
+              <Text style={styles.reviewBody}>{review.body}</Text>
+              <View style={styles.reviewActions}>
+                <View style={styles.reviewActionGroup}>
+                  <Ionicons name="thumbs-up-outline" size={16} color={Colors.neutral700} />
+                  <Text style={styles.reviewActionText}>24</Text>
+                </View>
+                <View style={styles.reviewActionGroup}>
+                  <Ionicons name="chatbubble-outline" size={16} color={Colors.neutral700} />
+                  <Text style={styles.reviewActionText}>Reply</Text>
+                </View>
+              </View>
             </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.suggestionsTitle}>More suggestions for you</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.suggestionScroller}
+          contentContainerStyle={styles.suggestionScrollerContent}
+        >
+          {suggestionCards.map((item) => (
+            <TouchableOpacity key={item.id} activeOpacity={0.76} style={styles.suggestionCard}>
+              <Image source={{ uri: item.image }} style={styles.suggestionImage} resizeMode="cover" />
+              <View style={styles.suggestionOverlay}>
+                <Text numberOfLines={1} style={styles.suggestionTitle}>{item.title}</Text>
+                <Text numberOfLines={1} style={styles.suggestionSubtitle}>{item.subtitle}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       <Footer containerStyle={styles.footer} />
     </ScrollView>
@@ -299,11 +301,14 @@ export default function DateSelectionScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.white },
   content: {
+    paddingTop: Spacing.md,
+    paddingBottom: 0,
+    width: '100%',
+  },
+  body: {
     alignSelf: 'center',
     maxWidth: 430,
     paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.md,
-    paddingBottom: 0,
     width: '100%',
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -426,7 +431,6 @@ const styles = StyleSheet.create({
     color: Colors.textLight,
   },
   footer: {
-    marginHorizontal: -Spacing.md,
     marginTop: 40,
   },
   addressText: {

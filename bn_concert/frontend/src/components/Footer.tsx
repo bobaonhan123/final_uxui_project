@@ -54,7 +54,7 @@ export default function Footer({ containerStyle }: FooterProps) {
   const storeIconSize = compact ? 20 : 24;
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[styles.container, containerStyle, { width, marginHorizontal: 0 }]}>
       <View style={[styles.introBlock, { maxWidth: contentWidth }]}>
         <Text style={styles.sectionTitle}>Let&apos;s keep in touch</Text>
         <Text style={styles.subtitle}>
@@ -160,6 +160,7 @@ export default function Footer({ containerStyle }: FooterProps) {
 
 const styles = StyleSheet.create({
   container: {
+    alignSelf: 'center',
     backgroundColor: Colors.darkSurface,
     minHeight: ComponentSizes.footerHeight,
     paddingHorizontal: Spacing.md,
