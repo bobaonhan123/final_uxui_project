@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Spacing, BorderRadius, Fonts } from '../../src/constants/theme';
 import { artistApi } from '../../src/api/services';
+import { resolveImageUrl } from '../../src/utils/images';
 import { ConcertCard, Footer, LoadingScreen } from '../../src/components';
 import type { Artist, ArtistVideo, Concert } from '../../src/types';
 
@@ -26,7 +27,7 @@ const FALLBACK_GALLERY = [
   'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=900',
   'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900',
   'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=900',
-  'https://images.unsplash.com/photo-1501386761578-0a55d2858e5b?w=900',
+  'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=900',
 ];
 
 type PlayerTrack = {
@@ -94,14 +95,20 @@ export default function ArtistDetailScreen() {
   }, [id]);
 
   const imageGallery = useMemo(() => {
-    if (artist?.image_gallery && artist.image_gallery.length > 0) {
-      return artist.image_gallery;
-    }
-    const concertImages = concerts
-      .map((concert) => concert.image_url)
+    const rawGallery = artist?.image_gallery && artist.image_gallery.length > 0
+      ? artist.image_gallery
+      : Array.from(
+        new Set([
+          ...concerts
+            .map((concert) => concert.image_url)
+            .filter((image): image is string => Boolean(image)),
+          ...FALLBACK_GALLERY,
+        ]),
+      ).slice(0, 5);
+
+    return rawGallery
+      .map((image) => resolveImageUrl(image) || image)
       .filter((image): image is string => Boolean(image));
-    const uniqueImages = Array.from(new Set([...concertImages, ...FALLBACK_GALLERY]));
-    return uniqueImages.slice(0, 5);
   }, [artist?.image_gallery, concerts]);
 
   const tracks = useMemo<PlayerTrack[]>(() => {
@@ -229,7 +236,7 @@ export default function ArtistDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.heroContainer}>
           <Image
-            source={{ uri: artist.image_url || imageGallery[0] || FALLBACK_GALLERY[0] }}
+            source={{ uri: resolveImageUrl(artist.image_url) || imageGallery[0] || FALLBACK_GALLERY[0] }}
             style={styles.heroImage}
           />
           <LinearGradient
@@ -352,7 +359,7 @@ export default function ArtistDetailScreen() {
                 activeOpacity={0.8}
               >
                 <Image
-                  source={{ uri: video.thumbnail_url || imageGallery[0] || FALLBACK_GALLERY[0] }}
+                  source={{ uri: resolveImageUrl(video.thumbnail_url) || imageGallery[0] || FALLBACK_GALLERY[0] }}
                   style={styles.videoThumb}
                 />
                 <View style={styles.videoDurationBadge}>

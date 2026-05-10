@@ -88,7 +88,7 @@ export const BLOG_NEWS_CARDS: StaticNewsCard[] = [
     viewsLabel: '5K',
     views: 5000,
     publishedAtISO: '2026-05-12T08:40:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1501386761578-0a55d2858e5b?w=1400',
+    imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1400',
   },
   {
     id: 'blog-card-4',

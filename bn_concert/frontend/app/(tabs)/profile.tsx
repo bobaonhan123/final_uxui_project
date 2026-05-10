@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BorderRadius, Colors, Fonts, Spacing } from '../../src/constants/theme';
 import { useAuth } from '../../src/context/AuthContext';
 import { LoadingScreen } from '../../src/components';
+import { resolveImageUrl } from '../../src/utils/images';
 
 type DashboardRoute =
   | '/dashboard/profile'
@@ -35,8 +36,6 @@ const PRIMARY_MENU_ITEMS: ReadonlyArray<{
   { label: 'Settings', icon: 'settings-outline', route: '/dashboard/settings' },
   { label: 'Help', icon: 'help-circle-outline', route: '/dashboard/help' },
 ];
-
-const DEFAULT_AVATAR_URI = 'https://www.figma.com/api/mcp/asset/908223a0-aa72-457f-9a17-07eb9adc22cb';
 
 function getActiveDashboardRoute(pathname: string): DashboardRoute {
   if (pathname === '/dashboard/contact' || pathname.startsWith('/dashboard/contact/')) {
@@ -104,6 +103,7 @@ export default function ProfileScreen() {
 
   const initials = `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase();
   const fullName = `${user.first_name} ${user.last_name}`.trim();
+  const avatarUrl = resolveImageUrl(user.avatar_url);
 
   const renderMenuItem = (
     item: { label: string; icon: keyof typeof Ionicons.glyphMap; route: DashboardRoute },
@@ -148,7 +148,13 @@ export default function ProfileScreen() {
         </Pressable>
 
         <View style={styles.profileBlock}>
-          <Image source={{ uri: user.avatar_url || DEFAULT_AVATAR_URI }} style={styles.avatar} />
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.initials}>{initials || user.email[0]?.toUpperCase() || 'U'}</Text>
+            </View>
+          )}
           <Text style={styles.name}>{fullName}</Text>
         </View>
 

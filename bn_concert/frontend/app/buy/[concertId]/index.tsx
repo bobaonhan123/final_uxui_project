@@ -11,10 +11,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, BorderRadius, Fonts } from '../../../src/constants/theme';
 import { concertApi } from '../../../src/api/services';
+import { resolveImageUrl } from '../../../src/utils/images';
 import { Footer, LoadingScreen } from '../../../src/components';
 import type { Concert } from '../../../src/types';
 
-const BUY_TICKET_BANNER = 'https://www.figma.com/api/mcp/asset/d9b72176-2290-4ea8-bd19-e0353d90e9d8';
+const BUY_TICKET_BANNER =
+  'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80';
 
 export default function DateSelectionScreen() {
   const { concertId } = useLocalSearchParams<{ concertId: string }>();
@@ -67,7 +69,7 @@ export default function DateSelectionScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Image
-        source={{ uri: representativeConcert.image_url || BUY_TICKET_BANNER }}
+        source={{ uri: resolveImageUrl(representativeConcert.image_url) || BUY_TICKET_BANNER }}
         style={styles.bannerImage}
       />
 

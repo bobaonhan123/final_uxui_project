@@ -24,7 +24,7 @@ interface ApiError {
   };
 }
 
-const INCLUDE_ITEMS = ['Newsletter Concert Hub', 'Personal offers', 'Concert information'];
+const INCLUDE_ITEMS = ['Newsletter BNConcert', 'Personal offers', 'Concert information'];
 
 export default function SettingsScreen() {
   const { user, refreshUser, logout } = useAuth();

@@ -21,48 +21,26 @@ const SIDE_PADDING = 16;
 const CONTENT_WIDTH = SCREEN_WIDTH - SIDE_PADDING * 2;
 const HOME_ROWS = [0];
 
-const HERO_IMAGE = 'https://www.figma.com/api/mcp/asset/d0aecf8e-8df6-4e6f-94f9-a7a86ed833e2';
-const BLOG_IMAGE = 'https://www.figma.com/api/mcp/asset/e3319fa3-2512-4307-9f84-8fbee23a34b6';
-const ICON_SEARCH = 'https://www.figma.com/api/mcp/asset/ce22bd3c-9b27-4bc0-8932-1274a391520f';
-const ICON_EYE = 'https://www.figma.com/api/mcp/asset/72aec204-943b-4115-a93c-bc7ddbf3675c';
-const ICON_QUOTE_UP = 'https://www.figma.com/api/mcp/asset/9482a9ec-5fff-4ad7-b35c-deb6b81567ee';
-const ICON_QUOTE_DOWN = 'https://www.figma.com/api/mcp/asset/01a1a2b0-7d5c-48a7-950d-41ea98fb06de';
-const ICON_EDIT = 'https://www.figma.com/api/mcp/asset/86158519-70ea-4250-8412-a25d4843f864';
-const ICON_COPYRIGHT = 'https://www.figma.com/api/mcp/asset/149b1288-f7c3-4830-8c9e-8e2a695b7da9';
-const ICON_APPLE = 'https://www.figma.com/api/mcp/asset/bae82c18-fa02-4112-a93c-4107d41446aa';
-const ICON_GOOGLE_PLAY = 'https://www.figma.com/api/mcp/asset/ff0d073b-f587-4d6a-a021-ad4600953ec6';
-const ICON_INSTAGRAM = 'https://www.figma.com/api/mcp/asset/4e181b93-62fc-4591-9a03-2e69bfbf803a';
-const ICON_YOUTUBE = 'https://www.figma.com/api/mcp/asset/7b70c2c5-3e79-486e-a94c-a920375f68e5';
-const ICON_X = 'https://www.figma.com/api/mcp/asset/3eb18074-fef5-4920-a4ed-f76001128851';
-const ICON_SPOTIFY = 'https://www.figma.com/api/mcp/asset/067965fb-7b7c-4421-96de-37e3f7f3c7bd';
-const ICON_FACEBOOK = 'https://www.figma.com/api/mcp/asset/3eb93f39-f55f-4dc6-b8a3-ff6165ce84ec';
-const ICON_CALL = 'https://www.figma.com/api/mcp/asset/cd5aaf13-46b9-4419-ad5e-9b13bcbb2f98';
-const ICON_TICKET = 'https://www.figma.com/api/mcp/asset/30c0518a-a8f8-4480-9099-ee57359a48c7';
-const ICON_DOCUMENT = 'https://www.figma.com/api/mcp/asset/aeb79f15-159e-4c78-ba1d-c303bfa4ead7';
-const ICON_INFO = 'https://www.figma.com/api/mcp/asset/cddcb869-74f1-4f0e-9444-13bb88f96fdd';
-const ICON_ARROW_RIGHT = 'https://www.figma.com/api/mcp/asset/924d57ea-a2c3-4f99-a0a1-603a2fd3bdb1';
-const ICON_EYE_SLASH = 'https://www.figma.com/api/mcp/asset/60a606e6-4306-4737-8955-8cf9ffd85006';
-const CATEGORY_FOLK_IMAGE = 'https://www.figma.com/api/mcp/asset/569de5c5-6a27-434e-b857-897920a37828';
-const CATEGORY_CLASSIC_IMAGE = 'https://www.figma.com/api/mcp/asset/62fe73fc-4898-4fa6-94f1-30c063eb7116';
-const CATEGORY_POP_IMAGE = 'https://www.figma.com/api/mcp/asset/49286d55-615f-47d6-b4bc-a1a019922572';
-const CATEGORY_JAZZ_IMAGE = 'https://www.figma.com/api/mcp/asset/d05da422-8334-4da1-95d2-33647e9a8a24';
-const CATEGORY_ROCK_IMAGE = 'https://www.figma.com/api/mcp/asset/d7cc5c14-afe0-4120-9d08-ac35de681096';
-const ARTIST_1 = 'https://www.figma.com/api/mcp/asset/d2681072-af67-47d0-aa9e-109a1416082d';
-const ARTIST_2 = 'https://www.figma.com/api/mcp/asset/e7a3416f-0c3b-4d66-9a49-1fac5696a009';
-const ARTIST_3 = 'https://www.figma.com/api/mcp/asset/eacd183d-0b6e-40ce-aae2-46c0c2fdce19';
-const ARTIST_4 = 'https://www.figma.com/api/mcp/asset/ba3e7ebe-349d-45c6-877f-98be03340f42';
-const ARTIST_5 = 'https://www.figma.com/api/mcp/asset/07a318fd-7b0b-4f59-8c1a-ee42d16c3599';
-const ARTIST_6 = 'https://www.figma.com/api/mcp/asset/cd6233ac-03cd-4732-8011-3c537b1f62ab';
-const CARD_IMAGE_1 = 'https://www.figma.com/api/mcp/asset/f8ea52fa-d77b-4040-9292-fc522cbf68b7';
-const CARD_IMAGE_2 = 'https://www.figma.com/api/mcp/asset/ba0da3dd-4f33-45b6-ab92-a0a8f025b785';
-const CARD_IMAGE_3 = 'https://www.figma.com/api/mcp/asset/d3cdd0b5-e7da-4ffe-a4ae-adda25693a7d';
-const CARD_IMAGE_4 = 'https://www.figma.com/api/mcp/asset/9b47c905-287d-45f5-a408-e401647261a4';
-const CARD_IMAGE_5 = 'https://www.figma.com/api/mcp/asset/9bd45180-eb28-4dae-ae29-87a24541e1e7';
-const CARD_IMAGE_6 = 'https://www.figma.com/api/mcp/asset/1033b5fb-958d-4ca2-8ea1-2cb83dcb1842';
-const REVIEW_AVATAR = 'https://www.figma.com/api/mcp/asset/e4ae5fa7-9a92-44e3-9c0e-4ef0c97b8583';
-const REVIEW_STARS_EMPTY = 'https://www.figma.com/api/mcp/asset/09bfe2b7-81cd-490f-a0ba-300933a63ece';
-const REVIEW_STARS_FILLED = 'https://www.figma.com/api/mcp/asset/b7d94cc8-0b56-4635-8cce-f4cb7ac1476b';
-const REVIEW_SUCCESS_ICON = 'https://www.figma.com/api/mcp/asset/20529b21-26a7-4e59-bc0d-fade9fc4ec66';
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1200&q=80';
+const BLOG_IMAGE = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80';
+const CATEGORY_FOLK_IMAGE = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&q=80';
+const CATEGORY_CLASSIC_IMAGE = 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=500&q=80';
+const CATEGORY_POP_IMAGE = 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=500&q=80';
+const CATEGORY_JAZZ_IMAGE = 'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=500&q=80';
+const CATEGORY_ROCK_IMAGE = 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&w=500&q=80';
+const ARTIST_1 = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80';
+const ARTIST_2 = 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80';
+const ARTIST_3 = 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80';
+const ARTIST_4 = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+const ARTIST_5 = 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=400&q=80';
+const ARTIST_6 = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80';
+const CARD_IMAGE_1 = 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=700&q=80';
+const CARD_IMAGE_2 = 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=700&q=80';
+const CARD_IMAGE_3 = 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=700&q=80';
+const CARD_IMAGE_4 = 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=700&q=80';
+const CARD_IMAGE_5 = 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=700&q=80';
+const CARD_IMAGE_6 = 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=700&q=80';
+const REVIEW_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80';
 
 type CarouselCard = {
   id: string;
@@ -95,7 +73,7 @@ type ReviewModalMode = 'hidden' | 'empty' | 'filled' | 'success';
 
 type MenuRow = {
   id: string;
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   route?: string;
 };
@@ -147,10 +125,10 @@ const CUSTOMER_REVIEWS: ReviewCard[] = [
 ];
 
 const MENU_ROWS: MenuRow[] = [
-  { id: 'menu-contact', icon: ICON_CALL, label: 'Contact us', route: '/dashboard/contact' },
-  { id: 'menu-tickets', icon: ICON_TICKET, label: 'Tickets', route: '/(tabs)/tickets' },
-  { id: 'menu-blog', icon: ICON_DOCUMENT, label: 'Blog', route: '/(tabs)/blog' },
-  { id: 'menu-language', icon: ICON_INFO, label: 'Language' },
+  { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+  { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+  { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+  { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
 ];
 
 const FOOTER_CONCERT_HUB = ['About us', 'Careers', 'Press', 'Event organizers', 'Getting there', 'Privacy policy', 'Terms & conditions'];
@@ -253,16 +231,24 @@ export default function HomeScreen() {
         <Text style={styles.reviewCardName}>{item.name}</Text>
         <Image source={{ uri: item.image }} style={styles.reviewCardAvatar} />
       </View>
-      <Image source={{ uri: ICON_QUOTE_UP }} style={styles.reviewQuoteIcon} />
+      <Text style={styles.reviewQuoteIcon}>“</Text>
       <Text numberOfLines={6} style={styles.reviewCardBody}>
         {item.body}
       </Text>
-      <Image source={{ uri: ICON_QUOTE_DOWN }} style={[styles.reviewQuoteIcon, styles.reviewQuoteIconBottom]} />
+      <Text style={[styles.reviewQuoteIcon, styles.reviewQuoteIconBottom]}>”</Text>
     </View>
   );
 
   const reviewFilled = reviewModalMode === 'filled';
-  const reviewStars = reviewFilled ? REVIEW_STARS_FILLED : REVIEW_STARS_EMPTY;
+  const reviewStars = Array.from({ length: 5 }, (_, index) => (
+    <Ionicons
+      key={index}
+      name={reviewFilled ? 'star' : 'star-outline'}
+      size={28}
+      color={Colors.primary}
+      style={styles.reviewStarIcon}
+    />
+  ));
 
   return (
     <View style={styles.screen}>
@@ -297,7 +283,7 @@ export default function HomeScreen() {
 
             <View style={styles.searchSection}>
               <Pressable style={styles.searchBox} onPress={onSearch}>
-                <Image source={{ uri: ICON_SEARCH }} style={styles.searchIcon} />
+                <Ionicons name="search-outline" size={16} color={Colors.textLight} />
                 <Text style={styles.searchBoxText}>Search by Artist, Event or Venue</Text>
               </Pressable>
               <View style={styles.searchTagRow}>
@@ -375,7 +361,7 @@ export default function HomeScreen() {
                   <View style={styles.blogMetaRow}>
                     <Text style={styles.blogMetaText}>105 Comments</Text>
                     <View style={styles.blogViewRow}>
-                      <Image source={{ uri: ICON_EYE }} style={styles.blogEyeIcon} />
+                      <Ionicons name="eye-outline" size={16} color={Colors.textLight} />
                       <Text style={styles.blogMetaText}>100K</Text>
                     </View>
                   </View>
@@ -403,7 +389,7 @@ export default function HomeScreen() {
 
             <Pressable style={styles.reviewTriggerButton} onPress={onOpenReview}>
               <Text style={styles.reviewTriggerText}>Have a Thought?</Text>
-              <Image source={{ uri: ICON_EDIT }} style={styles.reviewTriggerIcon} />
+              <Ionicons name="create-outline" size={18} color={Colors.textSecondary} />
             </Pressable>
 
             <View style={styles.footer}>
@@ -446,23 +432,23 @@ export default function HomeScreen() {
               </View>
 
               <View style={styles.socialRow}>
-                <Image source={{ uri: ICON_INSTAGRAM }} style={styles.socialIcon} />
-                <Image source={{ uri: ICON_YOUTUBE }} style={styles.socialIcon} />
-                <Image source={{ uri: ICON_X }} style={styles.socialIcon} />
-                <Image source={{ uri: ICON_SPOTIFY }} style={styles.socialIcon} />
-                <Image source={{ uri: ICON_FACEBOOK }} style={styles.socialIcon} />
+                <Ionicons name="logo-instagram" size={24} color={Colors.white} style={styles.socialIcon} />
+                <Ionicons name="logo-youtube" size={24} color={Colors.white} style={styles.socialIcon} />
+                <Ionicons name="logo-x" size={24} color={Colors.white} style={styles.socialIcon} />
+                <Ionicons name="musical-notes-outline" size={24} color={Colors.white} style={styles.socialIcon} />
+                <Ionicons name="logo-facebook" size={24} color={Colors.white} style={styles.socialIcon} />
               </View>
 
               <View style={styles.storeRow}>
                 <View style={styles.storeBadge}>
-                  <Image source={{ uri: ICON_GOOGLE_PLAY }} style={styles.storeIcon} />
+                  <Ionicons name="logo-google-playstore" size={24} color={Colors.text} />
                   <View>
                     <Text style={styles.storeCaption}>Download on the</Text>
                     <Text style={styles.storeLabel}>Google Play</Text>
                   </View>
                 </View>
                 <View style={styles.storeBadge}>
-                  <Image source={{ uri: ICON_APPLE }} style={styles.storeIcon} />
+                  <Ionicons name="logo-apple" size={24} color={Colors.text} />
                   <View>
                     <Text style={styles.storeCaption}>Download on the</Text>
                     <Text style={styles.storeLabel}>App Store</Text>
@@ -471,7 +457,7 @@ export default function HomeScreen() {
               </View>
 
               <View style={styles.footerCopyright}>
-                <Image source={{ uri: ICON_COPYRIGHT }} style={styles.copyrightIcon} />
+                <Text style={styles.copyrightIcon}>©</Text>
                 <Text style={styles.footerCopyrightText}>BNConcert All Rights Reserved</Text>
               </View>
             </View>
@@ -503,10 +489,10 @@ export default function HomeScreen() {
                 onPress={() => onMenuRowPress(row)}
               >
                 <View style={styles.menuCardRowLeft}>
-                  <Image source={{ uri: row.icon }} style={styles.menuRowIcon} />
+                  <Ionicons name={row.icon} size={18} color={Colors.neutral700} />
                   <Text style={styles.menuCardRowText}>{row.label}</Text>
                 </View>
-                <Image source={{ uri: ICON_ARROW_RIGHT }} style={styles.menuRowArrowIcon} />
+                <Ionicons name="chevron-forward" size={18} color={Colors.neutral700} />
               </Pressable>
             ))}
           </View>
@@ -517,7 +503,7 @@ export default function HomeScreen() {
         <View style={styles.reviewOverlay}>
           {reviewModalMode === 'success' ? (
             <View style={styles.reviewSuccessCard}>
-              <Image source={{ uri: REVIEW_SUCCESS_ICON }} style={styles.reviewSuccessIcon} />
+              <Ionicons name="checkmark-circle" size={48} color={Colors.primary} style={styles.reviewSuccessIcon} />
               <Text style={styles.reviewSuccessText}>Thank you for submitting your review!</Text>
               <Pressable style={styles.reviewSubmitButton} onPress={onCloseReview}>
                 <Text style={styles.reviewSubmitButtonText}>Keep Browsing</Text>
@@ -525,11 +511,11 @@ export default function HomeScreen() {
             </View>
           ) : (
             <View style={styles.reviewFormCard}>
-              <Text style={styles.reviewTitle}>Leave a Review for Concert Hub</Text>
+              <Text style={styles.reviewTitle}>Leave a Review for BNConcert</Text>
               <Text style={styles.reviewSubtitle}>How would you rate for BNConcert ?</Text>
 
               <Pressable style={styles.reviewStarsButton} onPress={onPromoteReview}>
-                <Image source={{ uri: reviewStars }} style={styles.reviewStarsImage} resizeMode="contain" />
+                <View style={styles.reviewStarsRow}>{reviewStars}</View>
               </Pressable>
 
               <Pressable style={styles.reviewField} onPress={onPromoteReview}>
@@ -538,7 +524,7 @@ export default function HomeScreen() {
                   <Text style={reviewFilled ? styles.reviewValueText : styles.reviewPlaceholderText}>
                     {reviewFilled ? 'Sylvie' : 'Enter Input'}
                   </Text>
-                  <Image source={{ uri: ICON_EYE_SLASH }} style={styles.reviewEyeIcon} />
+                  <Ionicons name="eye-off-outline" size={16} color={Colors.textSecondary} />
                 </View>
               </Pressable>
 
@@ -548,7 +534,7 @@ export default function HomeScreen() {
                   <Text style={reviewFilled ? styles.reviewValueText : styles.reviewPlaceholderText}>
                     {reviewFilled ? 'Van Bleek' : 'Enter Input'}
                   </Text>
-                  <Image source={{ uri: ICON_EYE_SLASH }} style={styles.reviewEyeIcon} />
+                  <Ionicons name="eye-off-outline" size={16} color={Colors.textSecondary} />
                 </View>
               </Pressable>
 
@@ -556,10 +542,10 @@ export default function HomeScreen() {
                 <View style={styles.reviewTextArea}>
                   <Text style={reviewFilled ? styles.reviewTextAreaValue : styles.reviewTextAreaPlaceholder}>
                     {reviewFilled
-                      ? 'Concert Hub is a website I check regularly to find out about new concerts around my location...'
+                      ? 'BNConcert is a website I check regularly to find out about new concerts around my location...'
                       : 'Write a review....'}
                   </Text>
-                  <Image source={{ uri: ICON_EYE_SLASH }} style={styles.reviewEyeIcon} />
+                  <Ionicons name="eye-off-outline" size={16} color={Colors.textSecondary} />
                 </View>
               </Pressable>
 
@@ -991,8 +977,10 @@ const styles = StyleSheet.create({
   },
   reviewQuoteIcon: {
     marginTop: 8,
-    width: 16,
-    height: 16,
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 28,
+    lineHeight: 28,
+    color: Colors.primary,
   },
   reviewCardBody: {
     marginTop: 8,
@@ -1159,7 +1147,11 @@ const styles = StyleSheet.create({
   },
   copyrightIcon: {
     width: 18,
-    height: 18,
+    fontFamily: 'Inter_500Medium',
+    fontSize: 18,
+    lineHeight: 18,
+    color: Colors.white,
+    textAlign: 'center',
   },
   menuOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -1265,9 +1257,15 @@ const styles = StyleSheet.create({
     marginTop: 19,
     alignItems: 'center',
   },
-  reviewStarsImage: {
+  reviewStarsRow: {
     width: 226,
-    height: 24,
+    minHeight: 28,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reviewStarIcon: {
+    marginHorizontal: 4,
   },
   reviewField: {
     marginTop: 16,

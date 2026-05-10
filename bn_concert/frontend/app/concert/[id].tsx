@@ -15,11 +15,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, BorderRadius, Fonts } from '../../src/constants/theme';
 import { concertApi } from '../../src/api/services';
+import { resolveImageUrl } from '../../src/utils/images';
 import { LoadingScreen, Footer } from '../../src/components';
 import type { Concert } from '../../src/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_HEIGHT = 320;
+const DEFAULT_CONCERT_IMAGE =
+  'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=900&q=80';
+const DEFAULT_ARTIST_IMAGE =
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80';
 
 export default function ConcertDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -63,7 +68,7 @@ export default function ConcertDetailScreen() {
         {/* Hero Image */}
         <View style={styles.heroContainer}>
           <Image
-            source={{ uri: concert.image_url || 'https://via.placeholder.com/600x320/6C63FF/ffffff?text=Concert' }}
+            source={{ uri: resolveImageUrl(concert.image_url) || DEFAULT_CONCERT_IMAGE }}
             style={styles.heroImage}
           />
           <LinearGradient
@@ -118,7 +123,7 @@ export default function ConcertDetailScreen() {
               activeOpacity={0.7}
             >
               <Image
-                source={{ uri: concert.artist.image_url || 'https://via.placeholder.com/80/6C63FF/ffffff?text=Artist' }}
+                source={{ uri: resolveImageUrl(concert.artist.image_url) || DEFAULT_ARTIST_IMAGE }}
                 style={styles.artistImage}
               />
               <View style={{ flex: 1, marginLeft: Spacing.md }}>

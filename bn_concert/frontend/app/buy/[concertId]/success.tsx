@@ -15,12 +15,22 @@ const CONFETTI = [
 ] as const;
 
 export default function SuccessScreen() {
-  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const {
+    orderId,
+    customerEmail,
+    concertTitle: initialConcertTitle,
+    ticketCount: initialTicketCount,
+  } = useLocalSearchParams<{
+    orderId?: string;
+    customerEmail?: string;
+    concertTitle?: string;
+    ticketCount?: string;
+  }>();
   const router = useRouter();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [concertTitle, setConcertTitle] = useState('Concert');
+  const [concertTitle, setConcertTitle] = useState(initialConcertTitle || 'Concert');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,18 +53,22 @@ export default function SuccessScreen() {
           const { data: concert } = await concertApi.get(orderData.concert_id);
           setConcertTitle(concert.title);
         } catch {
-          setConcertTitle('Concert');
+          setConcertTitle(initialConcertTitle || 'Concert');
         }
+      } catch {
+        setOrder(null);
+        setTickets([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadSummary();
-  }, [orderId]);
+  }, [initialConcertTitle, orderId]);
 
-  const email = order?.customer_snapshot?.customer_email || 'Sylvievanbeek@gmail.com';
-  const ticketCount = tickets.length || order?.items.length || 0;
+  const email = order?.customer_snapshot?.customer_email || customerEmail || 'prototype.user@example.com';
+  const prototypeTicketCount = Number(initialTicketCount || 0);
+  const ticketCount = tickets.length || order?.items.length || (Number.isFinite(prototypeTicketCount) ? prototypeTicketCount : 0);
 
   const message = useMemo(() => {
     if (ticketCount > 0) return `Your ${ticketCount} ticket${ticketCount > 1 ? 's are' : ' is'} in your mailbox`;
@@ -89,7 +103,16 @@ export default function SuccessScreen() {
 
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => router.replace('/dashboard/tickets')}
+          onPress={() =>
+            router.replace({
+              pathname: '/dashboard/tickets',
+              params: {
+                prototype: '1',
+                concertTitle,
+                ticketCount: String(ticketCount || 2),
+              },
+            })
+          }
           style={styles.primaryButton}
         >
           <Text style={styles.primaryButtonText}>Download Your Tickets</Text>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Colors, BorderRadius, Spacing, Fonts, Overlays, Shadows } from '../constants/theme';
+import { resolveImageUrl } from '../utils/images';
 import type { Blog } from '../types';
 
 interface Props {
@@ -9,12 +10,15 @@ interface Props {
   featured?: boolean;
 }
 
+const DEFAULT_BLOG_IMAGE =
+  'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80';
+
 export default function BlogCard({ blog, onPress, featured }: Props) {
   if (featured) {
     return (
       <TouchableOpacity style={styles.featured} onPress={onPress} activeOpacity={0.8}>
         <Image
-          source={{ uri: blog.image_url || 'https://via.placeholder.com/400x200/FF0082/ffffff?text=Blog' }}
+          source={{ uri: resolveImageUrl(blog.image_url) || DEFAULT_BLOG_IMAGE }}
           style={styles.featuredImage}
         />
         <View style={styles.featuredOverlay}>
@@ -29,7 +33,7 @@ export default function BlogCard({ blog, onPress, featured }: Props) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <Image
-        source={{ uri: blog.image_url || 'https://via.placeholder.com/120x90/FF0082/ffffff?text=Blog' }}
+        source={{ uri: resolveImageUrl(blog.image_url) || DEFAULT_BLOG_IMAGE }}
         style={styles.thumb}
       />
       <View style={styles.content}>

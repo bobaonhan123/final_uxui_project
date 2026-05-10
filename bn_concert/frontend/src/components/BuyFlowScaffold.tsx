@@ -71,19 +71,19 @@ export function BuyTicketDateCard({
             {concert?.artist?.name || concert?.title || 'Taylor Swift'}
           </Text>
           <View style={styles.metaRow}>
-            <Ionicons name="ticket-outline" size={12} color={Colors.neutral700} />
+            <Ionicons name="ticket-outline" size={16} color={Colors.neutral700} />
             <Text numberOfLines={1} style={styles.metaText}>Quantity: {quantity}</Text>
           </View>
           <View style={styles.metaRow}>
-            <Ionicons name="cash-outline" size={12} color={Colors.neutral700} />
+            <Ionicons name="cash-outline" size={16} color={Colors.neutral700} />
             <Text numberOfLines={1} style={styles.metaText}>Price: {formatMoney(displayPrice)}</Text>
           </View>
           <View style={styles.metaRow}>
-            <Ionicons name="calendar-outline" size={12} color={Colors.neutral700} />
+            <Ionicons name="calendar-outline" size={16} color={Colors.neutral700} />
             <Text numberOfLines={1} style={styles.metaText}>{dateParts.weekday} {dateParts.time}</Text>
           </View>
           <View style={styles.metaRow}>
-            <Ionicons name="location-outline" size={13} color={Colors.neutral700} />
+            <Ionicons name="location-outline" size={18} color={Colors.neutral700} />
             <Text numberOfLines={1} style={styles.metaText}>{venueLabel}</Text>
           </View>
         </View>
@@ -251,11 +251,11 @@ const styles = StyleSheet.create({
   dateCheck: {
     alignItems: 'center',
     backgroundColor: Colors.success,
-    borderRadius: 9,
-    height: 18,
+    borderRadius: 12,
+    height: 24,
     justifyContent: 'center',
-    marginTop: 6,
-    width: 18,
+    marginTop: 4,
+    width: 24,
   },
   ticketInfoCard: {
     alignItems: 'center',
@@ -274,15 +274,14 @@ const styles = StyleSheet.create({
   },
   ticketCopy: {
     flex: 1,
-    gap: 3,
+    gap: 4,
     minWidth: 0,
     paddingRight: 6,
   },
   ticketTitle: {
     ...Fonts.medium,
-    fontSize: 12,
-    lineHeight: 14,
-    marginBottom: 2,
+    fontSize: 14,
+    lineHeight: 18,
   },
   metaRow: {
     alignItems: 'center',
@@ -298,7 +297,7 @@ const styles = StyleSheet.create({
   dateActions: {
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 92,
+    minHeight: 105,
     width: 98,
   },
   timePill: {
@@ -306,9 +305,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderRadius: BorderRadius.full,
     flexDirection: 'row',
+    height: 32,
     justifyContent: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 7,
   },
   timeText: {
     ...Fonts.body10,
@@ -344,22 +343,22 @@ const styles = StyleSheet.create({
   },
   stepItem: {
     alignItems: 'center',
-    width: 48,
+    width: 20,
   },
   stepCircle: {
     alignItems: 'center',
     backgroundColor: Colors.borderLight,
-    borderRadius: 8,
-    height: 16,
+    borderRadius: 10,
+    height: 20,
     justifyContent: 'center',
-    marginBottom: 5,
-    width: 16,
+    marginBottom: 4,
+    width: 20,
   },
   stepCircleDone: {
     backgroundColor: Colors.primary,
   },
   stepCircleCurrent: {
-    backgroundColor: Colors.border,
+    backgroundColor: Colors.borderMedium,
   },
   stepNumber: {
     ...Fonts.body10,
@@ -370,17 +369,18 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   stepLabel: {
-    ...Fonts.body10,
+    fontFamily: Fonts.medium.fontFamily,
+    fontSize: 10,
     color: Colors.neutral700,
-    lineHeight: 10,
+    lineHeight: 12,
     textAlign: 'center',
+    width: 82,
   },
   stepLine: {
     backgroundColor: Colors.borderMedium,
-    height: 1,
-    marginHorizontal: -2,
-    marginTop: 8,
-    width: 25,
+    height: 2,
+    marginTop: 9,
+    width: 45,
   },
   stepLineDone: {
     backgroundColor: Colors.primary,

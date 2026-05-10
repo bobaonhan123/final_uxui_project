@@ -26,7 +26,7 @@ interface ApiError {
 }
 
 const AUTH_BACKGROUND_URI =
-  'https://www.figma.com/api/mcp/asset/d021dfbc-b191-4362-bcc1-1948cc94831c';
+  'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1200&q=80';
 const HERO_SUBTITLE =
   'Discover millions of concert, get alerts about your favorite artists, teams, plays and more - plus always-secure, effortless ticketing.';
 

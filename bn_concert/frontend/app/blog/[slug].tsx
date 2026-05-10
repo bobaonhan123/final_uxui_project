@@ -19,6 +19,7 @@ import { Colors, Spacing, BorderRadius, Fonts, ComponentSizes } from '../../src/
 import { blogApi } from '../../src/api/services';
 import { BlogCard, Footer, LoadingScreen } from '../../src/components';
 import { useAuth } from '../../src/context/AuthContext';
+import { resolveImageUrl } from '../../src/utils/images';
 import {
   BLOG_DETAIL_ROUTE_MAP,
   getStaticDetailFromSlug,
@@ -28,6 +29,8 @@ import type { Blog, Comment as BlogComment } from '../../src/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_HEIGHT = 280;
+const DEFAULT_BLOG_IMAGE =
+  'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80';
 const DEFAULT_TAGS = ['#Celebrity', '#TaylorSwift', '#Concert'];
 
 type ReviewComment = BlogComment & {
@@ -266,8 +269,8 @@ export default function BlogDetailScreen() {
           <Image
             source={{
               uri:
-                (staticPayload ? staticPayload.detail.heroImageUrl : blog.image_url) ||
-                'https://via.placeholder.com/600x280/6C63FF/ffffff?text=Blog',
+                resolveImageUrl(staticPayload ? staticPayload.detail.heroImageUrl : blog.image_url) ||
+                DEFAULT_BLOG_IMAGE,
             }}
             style={styles.heroImage}
           />
@@ -316,7 +319,7 @@ export default function BlogDetailScreen() {
             <View style={styles.inlineGallery}>
               {inlineGallery.map((galleryItem) => (
                 <View key={galleryItem.imageUrl} style={styles.inlineGalleryItem}>
-                  <Image source={{ uri: galleryItem.imageUrl }} style={styles.inlineGalleryImage} />
+                  <Image source={{ uri: resolveImageUrl(galleryItem.imageUrl) || galleryItem.imageUrl }} style={styles.inlineGalleryImage} />
                   <Text style={styles.inlineGalleryCaption}>{galleryItem.caption}</Text>
                 </View>
               ))}

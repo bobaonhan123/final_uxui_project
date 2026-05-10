@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, BorderRadius, Spacing, Fonts } from '../constants/theme';
+import { resolveImageUrl } from '../utils/images';
 import type { Concert } from '../types';
 
 const CARD_WIDTH = (Dimensions.get('window').width - Spacing.lg * 2 - Spacing.md) / 2;
 const TICKETS_CARD_WIDTH = 156;
-const DEFAULT_CONCERT_IMAGE = 'https://www.figma.com/api/mcp/asset/7a4139ba-d999-4c2d-8914-478bca60d42a';
+const DEFAULT_CONCERT_IMAGE =
+  'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=900&q=80';
 
 interface Props {
   concert: Concert;
@@ -18,7 +20,7 @@ interface Props {
 export default function ConcertCard({ concert, onPress, fullWidth, variant = 'default' }: Props) {
   const isTicketsVariant = variant === 'tickets';
   const width = fullWidth ? '100%' : isTicketsVariant ? TICKETS_CARD_WIDTH : CARD_WIDTH;
-  const imageUri = concert.image_url || DEFAULT_CONCERT_IMAGE;
+  const imageUri = resolveImageUrl(concert.image_url) || DEFAULT_CONCERT_IMAGE;
   const artistTitle = concert.artist?.name || concert.title.replace(/\s+concert$/i, '');
   const city = concert.venue?.city || concert.venue?.name || 'San Diego';
   const formattedDate = new Date(concert.date).toLocaleDateString('en-US', {

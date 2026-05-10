@@ -13,13 +13,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { BorderRadius, Colors, Fonts, Spacing } from '../../src/constants/theme';
 import { concertApi, type ConcertDateRange } from '../../src/api/services';
-import { Button, ConcertCard, Footer, Header } from '../../src/components';
+import { ConcertCard, Footer, Header } from '../../src/components';
 import type { Concert } from '../../src/types';
 
 type FilterOption = { label: string; value: string };
 type DateFilterValue = 'all' | ConcertDateRange;
 
 const PAGE_SIZE = 8;
+const TICKETS_CARD_HEIGHT = 258;
+const TICKETS_ROW_GAP = 16;
+const FIGMA_VISIBLE_ROWS = 4;
 const DATE_FILTERS: FilterOption[] = [
   { label: 'All Dates', value: 'all' },
   { label: 'This Week', value: 'this_week' },
@@ -132,20 +135,41 @@ export default function TicketsScreen() {
       </View>
     ) : null;
 
-  const renderFooter = () =>
-    displayConcerts.length > 0 ? (
+  const renderFooter = () => {
+    const rowCount = Math.ceil(displayConcerts.length / 2);
+    const figmaGridHeight =
+      FIGMA_VISIBLE_ROWS * TICKETS_CARD_HEIGHT + (FIGMA_VISIBLE_ROWS - 1) * TICKETS_ROW_GAP;
+    const currentGridHeight =
+      rowCount > 0 ? rowCount * TICKETS_CARD_HEIGHT + (rowCount - 1) * TICKETS_ROW_GAP : 0;
+    const footerSpacerHeight = Math.max(0, figmaGridHeight - currentGridHeight);
+
+    return (
       <View style={styles.footerWrap}>
-        {hasMore ? (
-          <Button
-            title="Load More"
+        {footerSpacerHeight > 0 ? <View style={{ height: footerSpacerHeight }} /> : null}
+        {displayConcerts.length > 0 ? (
+          <Pressable
+            accessibilityRole="button"
+            disabled={loadingMore}
             onPress={handleLoadMore}
-            loading={loadingMore}
-            style={styles.loadMoreButton}
-          />
+            style={({ pressed }) => [
+              styles.seeMoreButton,
+              pressed && hasMore && styles.seeMoreButtonPressed,
+            ]}
+          >
+            {loadingMore ? (
+              <ActivityIndicator color={Colors.textSecondary} size="small" />
+            ) : (
+              <>
+                <Text style={styles.seeMoreText}>See More</Text>
+                <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} />
+              </>
+            )}
+          </Pressable>
         ) : null}
         <Footer containerStyle={styles.footer} />
       </View>
-    ) : null;
+    );
+  };
 
   const renderFilterChips = (
     label: string,
@@ -300,15 +324,26 @@ const styles = StyleSheet.create({
   footerWrap: {
     marginTop: Spacing.sm,
   },
-  loadMoreButton: {
+  seeMoreButton: {
     width: 159,
     height: 48,
-    paddingVertical: 0,
     alignSelf: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.full,
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    justifyContent: 'center',
     marginBottom: 56,
   },
+  seeMoreButtonPressed: {
+    opacity: 0.72,
+  },
+  seeMoreText: {
+    ...Fonts.button16,
+    color: Colors.textSecondary,
+  },
   footer: {
-    paddingHorizontal: 0,
     marginTop: 0,
   },
 });
