@@ -214,10 +214,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   content: {
-    alignItems: 'stretch',
+    alignSelf: 'center',
+    maxWidth: '100%',
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
-    width: '100%',
+    width: 360,
   },
   center: {
     flex: 1,

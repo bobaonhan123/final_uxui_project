@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   content: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     maxWidth: '100%',
     paddingHorizontal: Spacing.md,
     width: 360,

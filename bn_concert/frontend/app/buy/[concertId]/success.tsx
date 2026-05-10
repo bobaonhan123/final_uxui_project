@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   content: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     maxWidth: '100%',
     width: 360,
   },

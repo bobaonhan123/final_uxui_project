@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TextInput,
   Pressable,
+  useWindowDimensions,
   ViewStyle,
 } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -46,18 +47,23 @@ const SOCIAL_ICONS: SocialIcon[] = [
 
 export default function Footer({ containerStyle }: FooterProps) {
   const [email, setEmail] = useState('');
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(ComponentSizes.modalWidth, Math.max(244, width - Spacing.md * 2));
+  const compact = contentWidth < 320;
+  const storeButtonWidth = Math.max(112, Math.floor((contentWidth - Spacing.sm) / 2));
+  const storeIconSize = compact ? 20 : 24;
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <View style={styles.introBlock}>
+      <View style={[styles.introBlock, { maxWidth: contentWidth }]}>
         <Text style={styles.sectionTitle}>Let&apos;s keep in touch</Text>
         <Text style={styles.subtitle}>
           Stay updated with BNConcert&apos;s latest news and exclusive offers!
         </Text>
 
-        <View style={styles.subscribeBox}>
+        <View style={[styles.subscribeBox, { maxWidth: contentWidth }]}>
           <TextInput
-            style={styles.subscribeInput}
+            style={[styles.subscribeInput, compact && styles.subscribeInputCompact]}
             placeholder="Enter your email address"
             placeholderTextColor={Colors.textLight}
             value={email}
@@ -65,8 +71,10 @@ export default function Footer({ containerStyle }: FooterProps) {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <Pressable style={styles.subscribeButton}>
-            <Text style={styles.subscribeButtonText}>Subscribe Now</Text>
+          <Pressable style={[styles.subscribeButton, compact && styles.subscribeButtonCompact]}>
+            <Text numberOfLines={1} style={styles.subscribeButtonText}>
+              {compact ? 'Subscribe' : 'Subscribe Now'}
+            </Text>
           </Pressable>
         </View>
 
@@ -120,20 +128,24 @@ export default function Footer({ containerStyle }: FooterProps) {
         ))}
       </View>
 
-      <View style={styles.storeRow}>
-        <Pressable style={styles.storeButton}>
-          <Ionicons name="logo-google-playstore" size={24} color={Colors.primary} />
+      <View style={[styles.storeRow, { maxWidth: contentWidth }]}>
+        <Pressable style={[styles.storeButton, { width: storeButtonWidth }, compact && styles.storeButtonCompact]}>
+          <Ionicons name="logo-google-playstore" size={storeIconSize} color={Colors.primary} />
           <View style={styles.storeTextWrapper}>
             <Text style={styles.storeLabel}>Download on the</Text>
-            <Text style={styles.storeName}>Google Play</Text>
+            <Text numberOfLines={1} style={[styles.storeName, compact && styles.storeNameCompact]}>
+              Google Play
+            </Text>
           </View>
         </Pressable>
 
-        <Pressable style={styles.storeButton}>
-          <Ionicons name="logo-apple" size={24} color={Colors.primary} />
+        <Pressable style={[styles.storeButton, { width: storeButtonWidth }, compact && styles.storeButtonCompact]}>
+          <Ionicons name="logo-apple" size={storeIconSize} color={Colors.primary} />
           <View style={styles.storeTextWrapper}>
             <Text style={styles.storeLabel}>Download on the</Text>
-            <Text style={styles.storeName}>App Store</Text>
+            <Text numberOfLines={1} style={[styles.storeName, compact && styles.storeNameCompact]}>
+              App Store
+            </Text>
           </View>
         </Pressable>
       </View>
@@ -155,6 +167,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   introBlock: {
+    alignSelf: 'center',
     width: '100%',
     maxWidth: ComponentSizes.modalWidth,
   },
@@ -189,11 +202,16 @@ const styles = StyleSheet.create({
   subscribeInput: {
     flex: 1,
     maxWidth: 159,
+    minWidth: 0,
     padding: 0,
     color: Colors.text,
     fontFamily: Fonts.caption.fontFamily,
     fontSize: Fonts.caption.fontSize,
     lineHeight: Fonts.caption.lineHeight,
+  },
+  subscribeInputCompact: {
+    fontSize: 11,
+    maxWidth: 128,
   },
   subscribeButton: {
     height: 32,
@@ -202,6 +220,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  subscribeButtonCompact: {
+    paddingHorizontal: 12,
   },
   subscribeButtonText: {
     fontFamily: Fonts.button12.fontFamily,
@@ -217,7 +238,10 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   linkSection: {
+    alignSelf: 'center',
     marginTop: Spacing.md,
+    maxWidth: ComponentSizes.modalWidth,
+    width: '100%',
   },
   linkGroup: {
     marginTop: Spacing.xs,
@@ -237,6 +261,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   storeRow: {
+    alignSelf: 'center',
     marginTop: Spacing.xl,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -245,7 +270,6 @@ const styles = StyleSheet.create({
     maxWidth: ComponentSizes.modalWidth,
   },
   storeButton: {
-    width: 156,
     height: 40,
     borderRadius: BorderRadius.lg,
     backgroundColor: Colors.white,
@@ -254,7 +278,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
   },
+  storeButtonCompact: {
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
+  },
   storeTextWrapper: {
+    flex: 1,
+    minWidth: 0,
     paddingBottom: 6,
   },
   storeLabel: {
@@ -268,6 +298,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 26,
     color: Colors.text,
+  },
+  storeNameCompact: {
+    fontSize: 11,
   },
   copyrightRow: {
     marginTop: Spacing.xl + Spacing.xs,

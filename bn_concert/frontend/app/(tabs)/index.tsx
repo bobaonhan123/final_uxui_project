@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BorderRadius, Colors, Overlays, Spacing } from '../../src/constants/theme';
+import { Footer } from '../../src/components';
 import { useAuth } from '../../src/context/AuthContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -130,10 +131,6 @@ const MENU_ROWS: MenuRow[] = [
   { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
   { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
 ];
-
-const FOOTER_CONCERT_HUB = ['About us', 'Careers', 'Press', 'Event organizers', 'Getting there', 'Privacy policy', 'Terms & conditions'];
-const FOOTER_HELP = ['FAQs', 'Help center', 'Contact us', 'Customer service'];
-const FOOTER_MORE = ['Cancelled concerts', 'Cancellation insurance', 'Rescheduled events'];
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -392,75 +389,7 @@ export default function HomeScreen() {
               <Ionicons name="create-outline" size={18} color={Colors.textSecondary} />
             </Pressable>
 
-            <View style={styles.footer}>
-              <Text style={styles.footerTitle}>Let's keep in touch</Text>
-              <Text style={styles.footerSubtitle}>Stay updated with BNConcert's latest news and exclusive offers!</Text>
-
-              <View style={styles.subscribeBox}>
-                <Text style={styles.subscribePlaceholder}>Enter your email address</Text>
-                <Pressable style={styles.subscribeButton}>
-                  <Text style={styles.subscribeButtonText}>Subscribe Now</Text>
-                </Pressable>
-              </View>
-              <Text style={styles.subscribeDisclaimer}>By subscribing, you agree to our terms & conditions & Privacy policy.</Text>
-
-              <View style={styles.footerColumn}>
-                <Text style={styles.footerColumnTitle}>BNConcert</Text>
-                {FOOTER_CONCERT_HUB.map((item) => (
-                  <Text key={item} style={styles.footerLinkText}>
-                    {item}
-                  </Text>
-                ))}
-              </View>
-
-              <View style={styles.footerColumn}>
-                <Text style={styles.footerColumnTitle}>Looking for help</Text>
-                {FOOTER_HELP.map((item) => (
-                  <Text key={item} style={styles.footerLinkText}>
-                    {item}
-                  </Text>
-                ))}
-              </View>
-
-              <View style={styles.footerColumn}>
-                <Text style={styles.footerColumnTitle}>Looking for more</Text>
-                {FOOTER_MORE.map((item) => (
-                  <Text key={item} style={styles.footerLinkText}>
-                    {item}
-                  </Text>
-                ))}
-              </View>
-
-              <View style={styles.socialRow}>
-                <Ionicons name="logo-instagram" size={24} color={Colors.white} style={styles.socialIcon} />
-                <Ionicons name="logo-youtube" size={24} color={Colors.white} style={styles.socialIcon} />
-                <Ionicons name="logo-x" size={24} color={Colors.white} style={styles.socialIcon} />
-                <Ionicons name="musical-notes-outline" size={24} color={Colors.white} style={styles.socialIcon} />
-                <Ionicons name="logo-facebook" size={24} color={Colors.white} style={styles.socialIcon} />
-              </View>
-
-              <View style={styles.storeRow}>
-                <View style={styles.storeBadge}>
-                  <Ionicons name="logo-google-playstore" size={24} color={Colors.text} />
-                  <View>
-                    <Text style={styles.storeCaption}>Download on the</Text>
-                    <Text style={styles.storeLabel}>Google Play</Text>
-                  </View>
-                </View>
-                <View style={styles.storeBadge}>
-                  <Ionicons name="logo-apple" size={24} color={Colors.text} />
-                  <View>
-                    <Text style={styles.storeCaption}>Download on the</Text>
-                    <Text style={styles.storeLabel}>App Store</Text>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.footerCopyright}>
-                <Text style={styles.copyrightIcon}>©</Text>
-                <Text style={styles.footerCopyrightText}>BNConcert All Rights Reserved</Text>
-              </View>
-            </View>
+            <Footer containerStyle={styles.footer} />
           </View>
         )}
         showsVerticalScrollIndicator={false}
@@ -1016,142 +945,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 24,
-    backgroundColor: Colors.darkSurface,
-    paddingTop: 16,
-    paddingHorizontal: SIDE_PADDING,
-    paddingBottom: 34,
-  },
-  footerTitle: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 16,
-    lineHeight: 32,
-    color: Colors.white,
-  },
-  footerSubtitle: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    lineHeight: 18,
-    color: Colors.white,
-  },
-  subscribeBox: {
-    marginTop: 16,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingLeft: 16,
-    paddingRight: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  subscribePlaceholder: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    lineHeight: 16,
-    color: Colors.textLight,
-  },
-  subscribeButton: {
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  subscribeButtonText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    lineHeight: 12,
-    color: Colors.white,
-  },
-  subscribeDisclaimer: {
-    marginTop: 10,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 10,
-    lineHeight: 10,
-    color: Colors.white,
-  },
-  footerColumn: {
-    marginTop: 24,
-  },
-  footerColumnTitle: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 16,
-    lineHeight: 32,
-    color: Colors.white,
-  },
-  footerLinkText: {
-    marginTop: 8,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    lineHeight: 18,
-    color: Colors.white,
-  },
-  socialRow: {
-    marginTop: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  socialIcon: {
-    width: 24,
-    height: 24,
-    marginHorizontal: 4,
-  },
-  storeRow: {
-    marginTop: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  storeBadge: {
-    width: (SCREEN_WIDTH - SIDE_PADDING * 2 - 16) / 2,
-    height: 40,
-    borderRadius: 16,
-    backgroundColor: Colors.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  storeIcon: {
-    width: 24,
-    height: 24,
-  },
-  storeCaption: {
-    marginLeft: 8,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 8,
-    lineHeight: 16,
-    color: Colors.text,
-  },
-  storeLabel: {
-    marginLeft: 8,
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 12,
-    lineHeight: 16,
-    color: Colors.text,
-  },
-  footerCopyright: {
-    marginTop: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footerCopyrightText: {
-    marginLeft: 8,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    lineHeight: 16,
-    color: Colors.white,
-  },
-  copyrightIcon: {
-    width: 18,
-    fontFamily: 'Inter_500Medium',
-    fontSize: 18,
-    lineHeight: 18,
-    color: Colors.white,
-    textAlign: 'center',
   },
   menuOverlay: {
     ...StyleSheet.absoluteFillObject,

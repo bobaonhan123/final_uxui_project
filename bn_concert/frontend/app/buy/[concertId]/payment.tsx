@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   content: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     maxWidth: '100%',
     paddingHorizontal: Spacing.md,
     width: 360,
