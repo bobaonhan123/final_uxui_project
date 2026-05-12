@@ -6,13 +6,13 @@ import {
   TextInput,
   Pressable,
   useWindowDimensions,
-  ViewStyle,
 } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius, Fonts, ComponentSizes } from '../constants/theme';
+import { Breakpoints, Colors, Spacing, BorderRadius, Fonts, ComponentSizes, Layout } from '../constants/theme';
 
 interface FooterProps {
-  containerStyle?: ViewStyle;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 const BN_LINKS = [
@@ -48,111 +48,121 @@ const SOCIAL_ICONS: SocialIcon[] = [
 export default function Footer({ containerStyle }: FooterProps) {
   const [email, setEmail] = useState('');
   const { width } = useWindowDimensions();
-  const contentWidth = Math.min(ComponentSizes.modalWidth, Math.max(244, width - Spacing.md * 2));
-  const compact = contentWidth < 320;
-  const storeButtonWidth = Math.max(112, Math.floor((contentWidth - Spacing.sm) / 2));
+  const isDesktop = width >= Breakpoints.desktop;
+  const contentWidth = isDesktop
+    ? Math.min(Layout.maxContentWidth, Math.max(0, width - Layout.desktopHorizontalPadding * 2))
+    : Math.min(ComponentSizes.modalWidth, Math.max(244, width - Spacing.md * 2));
+  const formWidth = Math.min(ComponentSizes.modalWidth, contentWidth);
+  const compact = formWidth < 320;
+  const storeButtonWidth = Math.max(112, Math.floor((formWidth - Spacing.sm) / 2));
   const storeIconSize = compact ? 20 : 24;
 
   return (
-    <View style={[styles.container, containerStyle, { width, marginHorizontal: 0 }]}>
-      <View style={[styles.introBlock, { maxWidth: contentWidth }]}>
-        <Text style={styles.sectionTitle}>Let&apos;s keep in touch</Text>
-        <Text style={styles.subtitle}>
-          Stay updated with BNConcert&apos;s latest news and exclusive offers!
-        </Text>
-
-        <View style={[styles.subscribeBox, { maxWidth: contentWidth }]}>
-          <TextInput
-            style={[styles.subscribeInput, compact && styles.subscribeInputCompact]}
-            placeholder="Enter your email address"
-            placeholderTextColor={Colors.textLight}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <Pressable style={[styles.subscribeButton, compact && styles.subscribeButtonCompact]}>
-            <Text numberOfLines={1} style={styles.subscribeButtonText}>
-              {compact ? 'Subscribe' : 'Subscribe Now'}
+    <View style={[styles.container, isDesktop && styles.containerDesktop, containerStyle]}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <View style={[styles.mainRow, isDesktop && styles.mainRowDesktop]}>
+          <View style={[styles.introBlock, { maxWidth: formWidth }, isDesktop && styles.introBlockDesktop]}>
+            <Text style={styles.sectionTitle}>Let&apos;s keep in touch</Text>
+            <Text style={styles.subtitle}>
+              Stay updated with BNConcert&apos;s latest news and exclusive offers!
             </Text>
-          </Pressable>
-        </View>
 
-        <Text style={styles.termsText}>
-          By subscribing, you agree to our terms &amp; conditions &amp; Privacy policy
-        </Text>
-      </View>
+            <View style={[styles.subscribeBox, { maxWidth: formWidth }]}>
+              <TextInput
+                style={[styles.subscribeInput, compact && styles.subscribeInputCompact]}
+                placeholder="Enter your email address"
+                placeholderTextColor={Colors.textLight}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <Pressable style={[styles.subscribeButton, compact && styles.subscribeButtonCompact]}>
+                <Text numberOfLines={1} style={styles.subscribeButtonText}>
+                  {compact ? 'Subscribe' : 'Subscribe Now'}
+                </Text>
+              </Pressable>
+            </View>
 
-      <View style={styles.linkSection}>
-        <Text style={styles.sectionTitle}>BNConcert</Text>
-        <View style={styles.linkGroup}>
-          {BN_LINKS.map((label) => (
-            <Pressable key={label}>
-              <Text style={styles.linkText}>{label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.linkSection}>
-        <Text style={styles.sectionTitle}>Looking for help</Text>
-        <View style={styles.linkGroup}>
-          {HELP_LINKS.map((label) => (
-            <Pressable key={label}>
-              <Text style={styles.linkText}>{label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.linkSection}>
-        <Text style={styles.sectionTitle}>Looking for more</Text>
-        <View style={styles.linkGroup}>
-          {MORE_LINKS.map((label) => (
-            <Pressable key={label}>
-              <Text style={styles.linkText}>{label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.socialRow}>
-        {SOCIAL_ICONS.map((icon) => (
-          <Pressable key={icon.key}>
-            {icon.family === 'fa5' ? (
-              <FontAwesome5 name={icon.name} size={24} color={Colors.white} />
-            ) : (
-              <Ionicons name={icon.name} size={24} color={Colors.white} />
-            )}
-          </Pressable>
-        ))}
-      </View>
-
-      <View style={[styles.storeRow, { maxWidth: contentWidth }]}>
-        <Pressable style={[styles.storeButton, { width: storeButtonWidth }, compact && styles.storeButtonCompact]}>
-          <Ionicons name="logo-google-playstore" size={storeIconSize} color={Colors.primary} />
-          <View style={styles.storeTextWrapper}>
-            <Text style={styles.storeLabel}>Download on the</Text>
-            <Text numberOfLines={1} style={[styles.storeName, compact && styles.storeNameCompact]}>
-              Google Play
+            <Text style={styles.termsText}>
+              By subscribing, you agree to our terms &amp; conditions &amp; Privacy policy
             </Text>
+
+            <View style={[styles.storeRow, { maxWidth: formWidth }]}>
+              <Pressable style={[styles.storeButton, { width: storeButtonWidth }, compact && styles.storeButtonCompact]}>
+                <Ionicons name="logo-google-playstore" size={storeIconSize} color={Colors.primary} />
+                <View style={styles.storeTextWrapper}>
+                  <Text style={styles.storeLabel}>Download on the</Text>
+                  <Text numberOfLines={1} style={[styles.storeName, compact && styles.storeNameCompact]}>
+                    Google Play
+                  </Text>
+                </View>
+              </Pressable>
+
+              <Pressable style={[styles.storeButton, { width: storeButtonWidth }, compact && styles.storeButtonCompact]}>
+                <Ionicons name="logo-apple" size={storeIconSize} color={Colors.primary} />
+                <View style={styles.storeTextWrapper}>
+                  <Text style={styles.storeLabel}>Download on the</Text>
+                  <Text numberOfLines={1} style={[styles.storeName, compact && styles.storeNameCompact]}>
+                    App Store
+                  </Text>
+                </View>
+              </Pressable>
+            </View>
           </View>
-        </Pressable>
 
-        <Pressable style={[styles.storeButton, { width: storeButtonWidth }, compact && styles.storeButtonCompact]}>
-          <Ionicons name="logo-apple" size={storeIconSize} color={Colors.primary} />
-          <View style={styles.storeTextWrapper}>
-            <Text style={styles.storeLabel}>Download on the</Text>
-            <Text numberOfLines={1} style={[styles.storeName, compact && styles.storeNameCompact]}>
-              App Store
-            </Text>
+          <View style={[styles.linksWrapper, isDesktop && styles.linksWrapperDesktop]}>
+            <View style={[styles.linkSection, isDesktop && styles.linkSectionDesktop]}>
+              <Text style={styles.sectionTitle}>BNConcert</Text>
+              <View style={styles.linkGroup}>
+                {BN_LINKS.map((label) => (
+                  <Pressable key={label}>
+                    <Text style={styles.linkText}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={[styles.linkSection, isDesktop && styles.linkSectionDesktop]}>
+              <Text style={styles.sectionTitle}>Looking for help</Text>
+              <View style={styles.linkGroup}>
+                {HELP_LINKS.map((label) => (
+                  <Pressable key={label}>
+                    <Text style={styles.linkText}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={[styles.linkSection, isDesktop && styles.linkSectionDesktop]}>
+              <Text style={styles.sectionTitle}>Looking for more</Text>
+              <View style={styles.linkGroup}>
+                {MORE_LINKS.map((label) => (
+                  <Pressable key={label}>
+                    <Text style={styles.linkText}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
           </View>
-        </Pressable>
-      </View>
 
-      <View style={styles.copyrightRow}>
-        <Ionicons name="copy-outline" size={18} color={Colors.white} />
-        <Text style={styles.copyrightText}>BNConcert All Rights Reserved</Text>
+          <View style={[styles.socialRow, isDesktop && styles.socialRowDesktop]}>
+            {SOCIAL_ICONS.map((icon) => (
+              <Pressable key={icon.key}>
+                {icon.family === 'fa5' ? (
+                  <FontAwesome5 name={icon.name} size={24} color={Colors.white} />
+                ) : (
+                  <Ionicons name={icon.name} size={24} color={Colors.white} />
+                )}
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.copyrightRow}>
+          <Ionicons name="copy-outline" size={18} color={Colors.white} />
+          <Text style={styles.copyrightText}>BNConcert All Rights Reserved</Text>
+        </View>
       </View>
     </View>
   );
@@ -161,17 +171,36 @@ export default function Footer({ containerStyle }: FooterProps) {
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'center',
-    backgroundColor: Colors.darkSurface,
+    backgroundColor: Colors.black,
     minHeight: ComponentSizes.footerHeight,
-    paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.md,
     width: '100%',
+  },
+  containerDesktop: {
+    minHeight: ComponentSizes.footerHeightDesktop,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
+  },
+  content: {
+    alignSelf: 'center',
+    maxWidth: Layout.maxContentWidth,
+  },
+  mainRow: {
+    width: '100%',
+  },
+  mainRowDesktop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   introBlock: {
     alignSelf: 'center',
     width: '100%',
     maxWidth: ComponentSizes.modalWidth,
+  },
+  introBlockDesktop: {
+    alignSelf: 'flex-start',
   },
   sectionTitle: {
     fontFamily: Fonts.heading16.fontFamily,
@@ -245,6 +274,21 @@ const styles = StyleSheet.create({
     maxWidth: ComponentSizes.modalWidth,
     width: '100%',
   },
+  linkSectionDesktop: {
+    alignSelf: 'flex-start',
+    flex: 1,
+    marginTop: 0,
+    maxWidth: 180,
+  },
+  linksWrapper: {
+    width: '100%',
+  },
+  linksWrapperDesktop: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginLeft: Spacing.xxl,
+  },
   linkGroup: {
     marginTop: Spacing.xs,
     gap: Spacing.sm,
@@ -261,6 +305,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     gap: Spacing.sm,
+  },
+  socialRowDesktop: {
+    alignSelf: 'flex-start',
+    marginTop: 0,
+    flexDirection: 'column',
+    gap: Spacing.md,
   },
   storeRow: {
     alignSelf: 'center',

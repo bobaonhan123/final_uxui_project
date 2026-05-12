@@ -78,6 +78,15 @@ export const Spacing = {
   xxl: 48,
 };
 
+export const Breakpoints = {
+  desktop: 1024,
+};
+
+export const Layout = {
+  maxContentWidth: 1225,
+  desktopHorizontalPadding: 108,
+};
+
 export const BorderRadius = {
   sm: 8,
   md: 12,
@@ -123,8 +132,10 @@ export const ComponentSizes = {
   inputHeight: 40,
   textareaMinHeight: 96,
   headerHeight: 40,
+  headerHeightDesktop: 136,
   statusBarHeight: 44,
   footerHeight: 902,
+  footerHeightDesktop: 408,
   modalWidth: 328,
   seatSize: 32,
 };
