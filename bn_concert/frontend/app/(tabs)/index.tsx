@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BorderRadius, Breakpoints, Colors, ComponentSizes, Layout, Overlays, Spacing } from '../../src/constants/theme';
 import { Footer } from '../../src/components';
+import Header from '../../src/components/Header';
 import { useAuth } from '../../src/context/AuthContext';
 
 const SIDE_PADDING = Spacing.md;
@@ -350,44 +351,16 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerBleed}>
-          <View style={contentShellStyle}>
-            <View style={[styles.headerRow, isDesktop ? styles.headerRowDesktop : styles.headerRowMobile]}>
-              <Pressable hitSlop={8} onPress={() => router.replace('/(tabs)' as never)}>
-                <Text style={[styles.logoText, isDesktop ? styles.logoTextDesktop : null]}>BNConcert</Text>
-              </Pressable>
-              {isDesktop ? (
-                <View style={styles.desktopNavRow}>
-                  {MENU_ROWS.map((row) => (
-                    <Pressable key={row.id} style={styles.desktopNavItem} onPress={() => onMenuRowPress(row)}>
-                      {row.label === 'Language' ? null : (
-                        <Ionicons name={row.icon} size={18} color={Colors.neutral700} />
-                      )}
-                      <Text style={styles.desktopNavText}>{row.label === 'Language' ? 'En' : row.label}</Text>
-                      {row.label === 'Language' ? (
-                        <Ionicons name="chevron-down-outline" size={18} color={Colors.neutral700} />
-                      ) : null}
-                    </Pressable>
-                  ))}
-                  <Pressable
-                    style={styles.desktopLoginButton}
-                    onPress={isAuthenticated ? onOpenProfile : onOpenLogin}
-                  >
-                    <Ionicons name="person-outline" size={20} color={Colors.white} />
-                    <Text style={styles.desktopLoginText}>{isAuthenticated ? 'Account' : 'Login'}</Text>
-                  </Pressable>
-                </View>
-              ) : (
-                <View style={styles.headerIconRow}>
-                  <Pressable style={styles.profileIconButton} onPress={isAuthenticated ? onOpenProfile : onOpenLogin}>
-                    <Ionicons name="person-circle-outline" size={24} color={Colors.neutral700} />
-                  </Pressable>
-                  <Pressable style={styles.menuIconButton} onPress={() => setMenuVisible(true)}>
-                    <Ionicons name="menu-outline" size={24} color={Colors.neutral700} />
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          </View>
+          <Header
+            containerStyle={contentShellStyle as any}
+            isDesktop={isDesktop}
+            isAuthenticated={isAuthenticated}
+            menuRows={MENU_ROWS}
+            onMenuRowPress={onMenuRowPress}
+            onMenuPress={() => setMenuVisible(true)}
+            onProfilePress={onOpenProfile}
+            onLoginPress={onOpenLogin}
+          />
         </View>
 
         {isDesktop ? (
@@ -431,7 +404,7 @@ export default function HomeScreen() {
           </View>
         ) : (
           <>
-            <View style={contentShellStyle}>
+            
             <Pressable
               style={[styles.bannerCard, styles.bannerCardMobile]}
               onPress={onOpenBanner}
@@ -443,7 +416,7 @@ export default function HomeScreen() {
                 <Text style={styles.bannerSubtitle}>A Night to Remember!</Text>
               </View>
             </Pressable>
-            </View>
+            
 
             <View style={[styles.searchSection, styles.searchSectionMobile]}>
               <Pressable style={styles.searchBox} onPress={onSearch}>

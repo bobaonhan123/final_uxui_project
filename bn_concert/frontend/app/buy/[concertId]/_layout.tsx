@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Stack, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Fonts } from '../../../src/constants/theme';
+import { useWindowDimensions } from 'react-native';
+import { Colors, Spacing, Fonts, Breakpoints } from '../../../src/constants/theme';
 import { Header } from '../../../src/components';
 
 const STEPS = [
@@ -69,6 +70,8 @@ function StepIndicator() {
 
 export default function BuyLayout() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
 
   return (
     <Stack
@@ -77,9 +80,12 @@ export default function BuyLayout() {
         headerTitleAlign: 'center',
         headerShadowVisible: false,
         header: ({ options }) => (
-          <View style={[styles.header, { paddingTop: insets.top }]}>
-            <Header showSearch searchPlaceholder="Search here" />
-          </View>
+          // show the compact header only on mobile; on desktop we render our full Header inside pages
+          isDesktop ? null : (
+            <View style={[styles.header, { paddingTop: insets.top }]}>
+              <Header showSearch searchPlaceholder="Search here" />
+            </View>
+          )
         ),
       }}
     >
