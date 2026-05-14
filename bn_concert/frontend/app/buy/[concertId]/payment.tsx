@@ -8,17 +8,20 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { giftCardApi, orderApi, userApi, type PaymentOption } from '../../../src/api/services';
 import { Footer } from '../../../src/components';
+import Header from '../../../src/components/Header';
+import { useAuth } from '../../../src/context/AuthContext';
 import {
   BuyStepper,
   BuyTicketDateCard,
 } from '../../../src/components/BuyFlowScaffold';
-import { BorderRadius, Colors, Fonts, Spacing } from '../../../src/constants/theme';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../../../src/constants/theme';
 import type { Concert, PaymentMethod } from '../../../src/types';
 import { concertApi } from '../../../src/api/services';
 
@@ -26,6 +29,13 @@ const INSURANCE_RATE = 0.05;
 const BOOKING_FEE = 20;
 const PAYMENT_BRANDS = ['AMEX', 'VISA', 'Revolut', 'MC', 'PayPal', 'Maestro'] as const;
 const IDEAL_BANKS = ['ING', 'Rabobank', 'ABN AMRO', 'SNS Bank'];
+
+const MENU_ROWS = [
+  { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+  { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+  { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+  { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+];
 
 const formatOverviewMoney = (value: number) => `$ ${Math.round(value)}`;
 
@@ -74,6 +84,9 @@ export default function PaymentScreen() {
     resetMethod?: string;
   }>();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+  const { isAuthenticated } = useAuth();
 
   const normalizedSeatIds = useMemo(
     () => seatIds?.split(',').filter(Boolean) ?? [],
@@ -278,197 +291,226 @@ export default function PaymentScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <BuyTicketDateCard
-        concert={concert}
-        quantity={normalizedSeatIds.length || 2}
-        price={displayPrice}
-        onChangeDate={() => router.push(`/buy/${concertId}`)}
-      />
-      <BuyStepper currentStep={4} />
-
-      <View style={styles.checkoutPanel}>
-        <View style={styles.infoBlock}>
-          <View style={styles.infoTitleRow}>
-            <Text style={styles.infoTitle}>1. Your Information</Text>
-            <Ionicons name="create-outline" size={16} color={Colors.neutral700} />
-          </View>
-          <View style={styles.infoDetails}>
-            <View style={styles.verticalLine} />
-            <View style={styles.infoRows}>
-              <InfoRow icon="person-circle-outline" text={customerName || 'Customer'} />
-              <InfoRow icon="call-outline" text={customerPhone || '8023456789'} />
-              <InfoRow icon="location-outline" text={customerAddress || 'Delftwegstraat 23, Delft, Netherlands'} />
-              <InfoRow icon="mail-outline" text={customerEmail || 'sylvievanbeek@gmail.com'} />
-            </View>
-          </View>
-        </View>
-
-        <CheckRow
-          label="Missed events insurance"
-          selected={insurance}
-          onPress={() => setInsurance((value) => !value)}
-        />
-        <CheckRow
-          label="Use your gift card"
-          selected={useGiftCard}
-          onPress={() => setUseGiftCard((value) => !value)}
-        />
-
-        {useGiftCard ? (
-          <View style={styles.giftCardRow}>
-            <TextInput
-              value={giftCardCode}
-              onChangeText={(value) => {
-                setGiftCardCode(value);
-                setAppliedGiftCardBalance(null);
-              }}
-              autoCapitalize="characters"
-              placeholder="Gift card code"
-              placeholderTextColor={Colors.textLight}
-              style={styles.giftCardInput}
+        {isDesktop ? (
+          <View style={styles.headerFullWidth}>
+            <Header
+              containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+              isDesktop={true}
+              isAuthenticated={isAuthenticated}
+              menuRows={MENU_ROWS}
+              onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
+              onMenuPress={() => {}}
+              onProfilePress={() => router.push('/(tabs)/profile')}
+              onLoginPress={() => router.push('/(auth)/login')}
+              showSearch={'inline'}
+              searchPlaceholder={'Search here'}
             />
-            <TouchableOpacity
-              disabled={!normalizedGiftCardCode || applyingGiftCard}
-              onPress={handleApplyGiftCard}
-              style={[styles.applyButton, (!normalizedGiftCardCode || applyingGiftCard) && styles.applyButtonDisabled]}
-            >
-              {applyingGiftCard ? <ActivityIndicator color={Colors.white} size="small" /> : <Text style={styles.applyText}>Apply</Text>}
-            </TouchableOpacity>
           </View>
         ) : null}
 
-        <Text style={styles.paymentTitle}>2. Select your payment method</Text>
+      <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : null]}>
 
-        <View style={styles.methodPanel}>
-          <View style={styles.methodPanelHeader}>
-            <Ionicons name="card-outline" size={24} color={Colors.neutral700} />
-            <Text style={styles.methodPanelTitle}>Your last purchase methods</Text>
-          </View>
+        <BuyTicketDateCard
+          concert={concert}
+          quantity={normalizedSeatIds.length || 2}
+          price={displayPrice}
+          onChangeDate={() => router.push(`/buy/${concertId}`)}
+        />
 
-          {loadingMethods ? (
-            <ActivityIndicator color={Colors.primary} style={styles.methodLoader} />
-          ) : hasSavedCards ? (
-            <View style={styles.savedCards}>
-              {savedCards.slice(0, 2).map((method) => {
-                const selected = selectedOption === 'saved_card' && selectedSavedCardId === method.id;
+        <BuyStepper currentStep={4} />
 
-                return (
-                  <TouchableOpacity
-                    key={method.id}
-                    activeOpacity={0.75}
-                    onPress={() => {
-                      setSelectedOption('saved_card');
-                      setSelectedSavedCardId(method.id);
+        <View style={[styles.pageRow, isDesktop ? styles.pageRowDesktop : null]}>
+          <View style={styles.leftColumn}>
+            <View style={[styles.checkoutPanel, isDesktop ? styles.checkoutPanelDesktop : null]}>
+              <View style={styles.infoBlock}>
+                <View style={styles.infoTitleRow}>
+                  <Text style={styles.infoTitle}>1. Your Information</Text>
+                  <Ionicons name="create-outline" size={16} color={Colors.neutral700} />
+                </View>
+                <View style={styles.infoDetails}>
+                  <View style={styles.verticalLine} />
+                  <View style={styles.infoRows}>
+                    <InfoRow icon="person-circle-outline" text={customerName || 'Customer'} />
+                    <InfoRow icon="call-outline" text={customerPhone || '8023456789'} />
+                    <InfoRow icon="location-outline" text={customerAddress || 'Delftwegstraat 23, Delft, Netherlands'} />
+                    <InfoRow icon="mail-outline" text={customerEmail || 'sylvievanbeek@gmail.com'} />
+                  </View>
+                </View>
+              </View>
+
+              <CheckRow
+                label="Missed events insurance"
+                selected={insurance}
+                onPress={() => setInsurance((value) => !value)}
+              />
+              <CheckRow
+                label="Use your gift card"
+                selected={useGiftCard}
+                onPress={() => setUseGiftCard((value) => !value)}
+              />
+
+              {useGiftCard ? (
+                <View style={styles.giftCardRow}>
+                  <TextInput
+                    value={giftCardCode}
+                    onChangeText={(value) => {
+                      setGiftCardCode(value);
+                      setAppliedGiftCardBalance(null);
                     }}
-                    style={styles.savedCardOption}
+                    autoCapitalize="characters"
+                    placeholder="Gift card code"
+                    placeholderTextColor={Colors.textLight}
+                    style={styles.giftCardInput}
+                  />
+                  <TouchableOpacity
+                    disabled={!normalizedGiftCardCode || applyingGiftCard}
+                    onPress={handleApplyGiftCard}
+                    style={[styles.applyButton, (!normalizedGiftCardCode || applyingGiftCard) && styles.applyButtonDisabled]}
                   >
-                    <View style={[styles.miniCard, selected && styles.miniCardSelected]}>
-                      <Text style={[styles.miniCardBrand, selected && styles.miniCardBrandSelected]}>VISA</Text>
-                    </View>
-                    <Text numberOfLines={1} style={styles.savedCardName}>{method.label}</Text>
-                    <Text style={styles.savedCardNumber}>{method.last_four ? `*** ${method.last_four}` : '*** 011'}</Text>
+                    {applyingGiftCard ? <ActivityIndicator color={Colors.white} size="small" /> : <Text style={styles.applyText}>Apply</Text>}
                   </TouchableOpacity>
-                );
-              })}
+                </View>
+              ) : null}
+
+              <Text style={styles.paymentTitle}>2. Select your payment method</Text>
+
+              <View style={styles.methodPanel}>
+                <View style={styles.methodPanelHeader}>
+                  <Ionicons name="card-outline" size={24} color={Colors.neutral700} />
+                  <Text style={styles.methodPanelTitle}>Your last purchase methods</Text>
+                </View>
+
+                {loadingMethods ? (
+                  <ActivityIndicator color={Colors.primary} style={styles.methodLoader} />
+                ) : hasSavedCards ? (
+                  <View style={styles.savedCards}>
+                    {savedCards.slice(0, 2).map((method) => {
+                      const selected = selectedOption === 'saved_card' && selectedSavedCardId === method.id;
+
+                      return (
+                        <TouchableOpacity
+                          key={method.id}
+                          activeOpacity={0.75}
+                          onPress={() => {
+                            setSelectedOption('saved_card');
+                            setSelectedSavedCardId(method.id);
+                          }}
+                          style={styles.savedCardOption}
+                        >
+                          <View style={[styles.miniCard, selected && styles.miniCardSelected]}>
+                            <Text style={[styles.miniCardBrand, selected && styles.miniCardBrandSelected]}>VISA</Text>
+                          </View>
+                          <Text numberOfLines={1} style={styles.savedCardName}>{method.label}</Text>
+                          <Text style={styles.savedCardNumber}>{method.last_four ? `*** ${method.last_four}` : '*** 011'}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                ) : (
+                  <Text style={styles.noSavedText}>No saved cards yet.</Text>
+                )}
+
+                <View style={styles.cardInfo}>
+                  <Field label="Card number" value={cardNumber} onChangeText={(value) => setCardNumber(formatCardNumber(value))} placeholder="4508 - 5468 - 4509 - 0892" keyboardType="number-pad" />
+                  <Field label="Card owner name" value={cardName} onChangeText={setCardName} placeholder="Sylvie Van Beek" />
+                  <Field label="Expiry date" value={cardExpiry} onChangeText={(value) => setCardExpiry(formatExpiry(value))} placeholder="25 - 09 - 2029" keyboardType="number-pad" />
+                  <Field label="CCV2" value={cardCvv} onChangeText={(value) => setCardCvv(value.replace(/\D/g, '').slice(0, 4))} placeholder="1111" keyboardType="number-pad" secureTextEntry />
+                </View>
+              </View>
+
+              <View style={styles.methodPanel}>
+                <View style={styles.methodPanelHeader}>
+                  <Ionicons name="card-outline" size={24} color={Colors.neutral700} />
+                  <Text style={styles.methodPanelTitle}>Add a new method:</Text>
+                </View>
+
+                <View style={styles.brandGrid}>
+                  {PAYMENT_BRANDS.map((brand) => (
+                    <TouchableOpacity
+                      key={brand}
+                      activeOpacity={0.75}
+                      onPress={() => setSelectedOption(brand === 'PayPal' ? 'ideal' : 'new_card')}
+                      style={[
+                        styles.brandChip,
+                        ((brand !== 'PayPal' && selectedOption === 'new_card') || (brand === 'PayPal' && selectedOption === 'ideal')) && styles.brandChipSelected,
+                      ]}
+                    >
+                      <Text style={styles.brandText}>{brand}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {requiresIdealBank ? (
+                  <View style={styles.bankGrid}>
+                    {IDEAL_BANKS.map((bank) => (
+                      <TouchableOpacity
+                        key={bank}
+                        activeOpacity={0.75}
+                        onPress={() => setIdealBank(bank)}
+                        style={[styles.bankChip, idealBank === bank && styles.bankChipSelected]}
+                      >
+                        <Text style={[styles.bankText, idealBank === bank && styles.bankTextSelected]}>{bank}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : null}
+              </View>
             </View>
-          ) : (
-            <Text style={styles.noSavedText}>No saved cards yet.</Text>
-          )}
-
-          <View style={styles.cardInfo}>
-            <Field label="Card number" value={cardNumber} onChangeText={(value) => setCardNumber(formatCardNumber(value))} placeholder="4508 - 5468 - 4509 - 0892" keyboardType="number-pad" />
-            <Field label="Card owner name" value={cardName} onChangeText={setCardName} placeholder="Sylvie Van Beek" />
-            <Field label="Expiry date" value={cardExpiry} onChangeText={(value) => setCardExpiry(formatExpiry(value))} placeholder="25 - 09 - 2029" keyboardType="number-pad" />
-            <Field label="CCV2" value={cardCvv} onChangeText={(value) => setCardCvv(value.replace(/\D/g, '').slice(0, 4))} placeholder="1111" keyboardType="number-pad" secureTextEntry />
-          </View>
-        </View>
-
-        <View style={styles.methodPanel}>
-          <View style={styles.methodPanelHeader}>
-            <Ionicons name="card-outline" size={24} color={Colors.neutral700} />
-            <Text style={styles.methodPanelTitle}>Add a new method:</Text>
           </View>
 
-          <View style={styles.brandGrid}>
-            {PAYMENT_BRANDS.map((brand) => (
-              <TouchableOpacity
-                key={brand}
-                activeOpacity={0.75}
-                onPress={() => setSelectedOption(brand === 'PayPal' ? 'ideal' : 'new_card')}
-                style={[
-                  styles.brandChip,
-                  ((brand !== 'PayPal' && selectedOption === 'new_card') || (brand === 'PayPal' && selectedOption === 'ideal')) && styles.brandChipSelected,
-                ]}
-              >
-                <Text style={styles.brandText}>{brand}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {requiresIdealBank ? (
-            <View style={styles.bankGrid}>
-              {IDEAL_BANKS.map((bank) => (
+          <View style={styles.rightColumn}>
+            <View style={[styles.orderOverview, isDesktop ? styles.orderOverviewDesktop : null]}>
+              <View style={styles.overviewTop}>
+                <Text style={styles.overviewTitle}>Payment details</Text>
+                <View style={styles.overviewRows}>
+                  <OverviewRow label="Order number" value="11458523" />
+                  <OverviewRow label={ticketPriceLabel} value={formatOverviewMoney(displayPrice)} />
+                  <View style={styles.quantityRow}>
+                    <View style={styles.quantityMeta}>
+                      <Ionicons name="close-outline" size={13} color={Colors.textMuted} />
+                      <Text style={styles.quantityText}>{ticketQuantity}</Text>
+                    </View>
+                    <Text style={styles.overviewValue}>{formatOverviewMoney(subtotal)}</Text>
+                  </View>
+                  <OverviewRow label="Booking fee" value={formatOverviewMoney(BOOKING_FEE)} />
+                  <OverviewRow label="Ticket insurance" value={formatOverviewMoney(insuranceFee)} />
+                  <TouchableOpacity
+                    activeOpacity={0.72}
+                    onPress={() => setUseGiftCard(true)}
+                    style={styles.giftOverviewRow}
+                  >
+                    <View style={styles.giftOverviewLabel}>
+                      <Ionicons name="gift-outline" size={16} color={Colors.secondary} />
+                      <Text style={styles.giftOverviewText}>Add your gift card</Text>
+                    </View>
+                    <Text style={styles.giftOverviewValue}>
+                      {giftCardDiscount > 0 ? `-${formatOverviewMoney(giftCardDiscount)}` : '-$ 0'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.overviewBottom}>
+                <View style={styles.finalRow}>
+                  <Text style={styles.finalLabel}>Final price</Text>
+                  <Text style={styles.finalValue}>{formatOverviewMoney(finalTotalWithFees)}</Text>
+                </View>
                 <TouchableOpacity
-                  key={bank}
-                  activeOpacity={0.75}
-                  onPress={() => setIdealBank(bank)}
-                  style={[styles.bankChip, idealBank === bank && styles.bankChipSelected]}
+                  activeOpacity={0.8}
+                  disabled={processing}
+                  onPress={handlePay}
+                  style={[styles.payButton, processing && styles.payButtonDisabled]}
                 >
-                  <Text style={[styles.bankText, idealBank === bank && styles.bankTextSelected]}>{bank}</Text>
+                  {processing ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.payButtonText}>Submit & Pay</Text>}
                 </TouchableOpacity>
-              ))}
+              </View>
             </View>
-          ) : null}
+          </View>
         </View>
       </View>
 
-      <View style={styles.orderOverview}>
-        <View style={styles.overviewTop}>
-          <Text style={styles.overviewTitle}>Payment details</Text>
-          <View style={styles.overviewRows}>
-            <OverviewRow label="Order number" value="11458523" />
-            <OverviewRow label={ticketPriceLabel} value={formatOverviewMoney(displayPrice)} />
-            <View style={styles.quantityRow}>
-              <View style={styles.quantityMeta}>
-                <Ionicons name="close-outline" size={13} color={Colors.textMuted} />
-                <Text style={styles.quantityText}>{ticketQuantity}</Text>
-              </View>
-              <Text style={styles.overviewValue}>{formatOverviewMoney(subtotal)}</Text>
-            </View>
-            <OverviewRow label="Booking fee" value={formatOverviewMoney(BOOKING_FEE)} />
-            <OverviewRow label="Ticket insurance" value={formatOverviewMoney(insuranceFee)} />
-            <TouchableOpacity
-              activeOpacity={0.72}
-              onPress={() => setUseGiftCard(true)}
-              style={styles.giftOverviewRow}
-            >
-              <View style={styles.giftOverviewLabel}>
-                <Ionicons name="gift-outline" size={16} color={Colors.secondary} />
-                <Text style={styles.giftOverviewText}>Add your gift card</Text>
-              </View>
-              <Text style={styles.giftOverviewValue}>
-                {giftCardDiscount > 0 ? `-${formatOverviewMoney(giftCardDiscount)}` : '-$ 0'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={styles.overviewBottom}>
-          <View style={styles.finalRow}>
-            <Text style={styles.finalLabel}>Final price</Text>
-            <Text style={styles.finalValue}>{formatOverviewMoney(finalTotalWithFees)}</Text>
-          </View>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            disabled={processing}
-            onPress={handlePay}
-            style={[styles.payButton, processing && styles.payButtonDisabled]}
-          >
-            {processing ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.payButtonText}>Submit & Pay</Text>}
-          </TouchableOpacity>
-        </View>
+      <View style={styles.footerWrapper}>
+        <Footer containerStyle={styles.footer} />
       </View>
-
-      <Footer containerStyle={styles.footer} />
     </ScrollView>
   );
 }
@@ -540,10 +582,46 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   content: {
-    alignSelf: 'center',
-    maxWidth: 430,
-    paddingHorizontal: Spacing.md,
     width: '100%',
+  },
+  contentWrapper: {
+    width: '100%',
+    paddingHorizontal: Spacing.md,
+  },
+  contentWrapperDesktop: {
+    paddingHorizontal: 0,
+    maxWidth: Layout.maxContentWidth,
+    alignSelf: 'center',
+  },
+  pageRow: {
+    width: '100%',
+    flexDirection: 'column',
+    gap: Spacing.md,
+  },
+  pageRowDesktop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  leftColumn: {
+    flex: 1,
+  },
+  rightColumn: {
+    width: 400,
+  },
+  checkoutPanelDesktop: {
+    width: 640,
+    alignSelf: 'flex-start',
+  },
+  orderOverviewDesktop: {
+    alignSelf: 'flex-start',
+    marginTop: Spacing.lg,
+    width: 400,
+  },
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
   },
   checkoutPanel: {
     alignSelf: 'center',
@@ -919,5 +997,8 @@ const styles = StyleSheet.create({
   footer: {
     marginHorizontal: -Spacing.md,
     marginTop: 56,
+  },
+  footerWrapper: {
+    width: '100%',
   },
 });

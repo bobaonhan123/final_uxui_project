@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -15,9 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Footer, Header } from '../../src/components';
 import { concertApi, orderApi } from '../../src/api/services';
-import { BorderRadius, Colors, Fonts, Spacing } from '../../src/constants/theme';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../../src/constants/theme';
 import { resolveImageUrl } from '../../src/utils/images';
 import type { Concert, OrderItem, Ticket } from '../../src/types';
+import { useAuth } from '../../src/context/AuthContext';
 
 const DEFAULT_TICKET_IMAGE =
   'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80';
@@ -80,6 +82,13 @@ const buildPrototypeTickets = (title?: string, countParam?: string): TicketCardD
   }));
 };
 
+const MENU_ROWS = [
+  { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+  { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+  { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+  { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+];
+
 const toTicketCard = (
   ticket: Ticket,
   item: OrderItem | undefined,
@@ -103,6 +112,9 @@ export default function MyTicketsScreen() {
     concertTitle?: string;
     ticketCount?: string;
   }>();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+  const { isAuthenticated } = useAuth();
   const [tickets, setTickets] = useState<TicketCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -165,51 +177,74 @@ export default function MyTicketsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
         showsVerticalScrollIndicator={false}
       >
-        <Header
-          showSearch
-          onSearchPress={() => router.push('/(tabs)/search' as never)}
-          onProfilePress={() => router.push('/(tabs)/profile' as never)}
-        />
+        {isDesktop ? (
+          <View style={styles.headerFullWidth}>
+            <Header
+              containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+              isDesktop={isDesktop}
+              isAuthenticated={isAuthenticated}
+              menuRows={MENU_ROWS}
+              onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
+              onMenuPress={() => {}}
+              showSearch={'inline'}
+              searchPlaceholder={'Search here'}
+              onProfilePress={() => router.push('/(tabs)/profile' as never)}
+              onLoginPress={() => router.push('/(auth)/login' as never)}
+            />
+          </View>
+        ) : (
+          <Header
+            showSearch
+            onSearchPress={() => router.push('/(tabs)/search' as never)}
+            onProfilePress={() => router.push('/(tabs)/profile' as never)}
+          />
+        )}
 
-        <View style={styles.ticketStack}>
-          {loading ? (
-            <ActivityIndicator color={Colors.primary} style={styles.loader} />
-          ) : (
-            tickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
-          )}
+        <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : styles.contentWrapperMobile]}>
+          <View style={styles.ticketStack}>
+            {loading ? (
+              <ActivityIndicator color={Colors.primary} style={styles.loader} />
+            ) : (
+              tickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
+            )}
+          </View>
+
+          <View style={styles.actionRow}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.replace('/(tabs)' as never)}
+              style={({ pressed }) => [styles.actionButton, styles.homeButton, pressed && styles.buttonPressed]}
+            >
+              <Text style={styles.homeButtonText}>Back to homepage</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.actionButton, styles.printButton, pressed && styles.buttonPressed]}
+            >
+              <Text style={styles.printButtonText}>Print Tickets</Text>
+            </Pressable>
+          </View>
         </View>
 
-        <View style={styles.actionRow}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.replace('/(tabs)' as never)}
-            style={({ pressed }) => [styles.actionButton, styles.homeButton, pressed && styles.buttonPressed]}
-          >
-            <Text style={styles.homeButtonText}>Back to homepage</Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            style={({ pressed }) => [styles.actionButton, styles.printButton, pressed && styles.buttonPressed]}
-          >
-            <Text style={styles.printButtonText}>Print my Tickets</Text>
-          </Pressable>
+        <View style={styles.footerWrapper}>
+          <Footer containerStyle={styles.footer} />
         </View>
-
-        <Footer containerStyle={styles.footer} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 function TicketCard({ ticket }: { ticket: TicketCardData }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
   const meta = `${ticket.gate}  |  Row ${ticket.row}  |  Seat ${ticket.seat}`;
 
   return (
-    <View style={styles.ticketCard}>
+    <View style={[styles.ticketCard, isDesktop ? styles.ticketCardDesktop : null]}>
       <ImageBackground
         source={{ uri: ticket.imageUri }}
-        imageStyle={styles.ticketImage}
-        style={styles.ticketMain}
+        imageStyle={[styles.ticketImage, isDesktop ? styles.ticketImageDesktop : null]}
+        style={[styles.ticketMain, isDesktop ? styles.ticketMainDesktop : null]}
       >
         <LinearGradient
           colors={['rgba(255,0,153,0.95)', 'rgba(255,255,255,0.04)']}
@@ -217,18 +252,18 @@ function TicketCard({ ticket }: { ticket: TicketCardData }) {
           start={{ x: 0, y: 0.5 }}
           style={StyleSheet.absoluteFillObject}
         />
-        <View style={styles.ticketBrandBlock}>
+        <View style={[styles.ticketBrandBlock, isDesktop ? styles.ticketBrandBlockDesktop : null]}>
           <Text style={styles.ticketCategory}>{ticket.category}</Text>
           <Text style={styles.ticketSite}>www.BNConcert.com</Text>
         </View>
         <QrGlyph />
-        <View style={styles.ticketEventBlock}>
-          <Text numberOfLines={1} style={styles.ticketTitle}>{ticket.title}</Text>
-          <Text style={styles.ticketDate}>{ticket.dateTime}</Text>
+        <View style={[styles.ticketEventBlock, isDesktop ? styles.ticketEventBlockDesktop : null]}>
+          <Text numberOfLines={1} style={[styles.ticketTitle, isDesktop ? styles.ticketTitleDesktop : null]}>{ticket.title}</Text>
+          <Text style={[styles.ticketDate, isDesktop ? styles.ticketDateDesktop : null]}>{ticket.dateTime}</Text>
         </View>
-        <View style={styles.ticketBottom}>
-          <Text numberOfLines={1} style={styles.ticketMeta}>{meta}</Text>
-          <View style={styles.pricePill}>
+        <View style={[styles.ticketBottom, isDesktop ? styles.ticketBottomDesktop : null]}>
+          <Text numberOfLines={1} style={[styles.ticketMeta, isDesktop ? styles.ticketMetaDesktop : null]}>{meta}</Text>
+          <View style={[styles.pricePill, isDesktop ? styles.pricePillDesktop : null]}>
             <Text style={styles.priceText}>{ticket.price}</Text>
           </View>
         </View>
@@ -238,7 +273,7 @@ function TicketCard({ ticket }: { ticket: TicketCardData }) {
         colors={['#4651C9', '#221F92']}
         end={{ x: 1, y: 0.5 }}
         start={{ x: 0, y: 0.5 }}
-        style={styles.ticketStub}
+        style={[styles.ticketStub, isDesktop ? styles.ticketStubDesktop : null]}
       >
         <Text numberOfLines={1} style={styles.stubCategory}>{ticket.category}</Text>
         <Text numberOfLines={1} style={styles.stubTitle}>{ticket.title}</Text>
@@ -249,7 +284,7 @@ function TicketCard({ ticket }: { ticket: TicketCardData }) {
         <Text numberOfLines={1} style={styles.stubMeta}>{meta}</Text>
         <Text style={styles.stubSite}>www.BNConcert.com</Text>
       </LinearGradient>
-      <View style={styles.ticketDivider} />
+      <View style={[styles.ticketDivider, isDesktop ? styles.ticketDividerDesktop : null]} />
     </View>
   );
 }
@@ -277,9 +312,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   content: {
+    width: '100%',
+  },
+  contentWrapper: {
+    width: '100%',
+    paddingHorizontal: Spacing.md,
+  },
+  contentWrapperDesktop: {
+    paddingHorizontal: 0,
+    maxWidth: Layout.maxContentWidth,
+    alignSelf: 'center',
+  },
+  contentWrapperMobile: {
     alignSelf: 'center',
     maxWidth: 430,
+    paddingHorizontal: Spacing.md,
+  },
+  headerFullWidth: {
     width: '100%',
+    backgroundColor: Colors.white,
   },
   ticketStack: {
     gap: Spacing.md,
@@ -298,12 +349,24 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: 328,
   },
+  ticketCardDesktop: {
+    width: 720,
+    height: 200,
+  },
   ticketMain: {
     height: 118,
     overflow: 'hidden',
     width: 224,
   },
+  ticketMainDesktop: {
+    width: 520,
+    height: 200,
+  },
   ticketImage: {
+    borderBottomLeftRadius: BorderRadius.lg,
+    borderTopLeftRadius: BorderRadius.lg,
+  },
+  ticketImageDesktop: {
     borderBottomLeftRadius: BorderRadius.lg,
     borderTopLeftRadius: BorderRadius.lg,
   },
@@ -312,6 +375,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
   },
+  ticketBrandBlockDesktop: { left: 20, top: 18 },
   ticketCategory: {
     ...Fonts.body12,
     color: Colors.white,
@@ -331,6 +395,7 @@ const styles = StyleSheet.create({
     top: 57,
     width: 148,
   },
+  ticketEventBlockDesktop: { left: 24, top: 80, width: 320 },
   ticketTitle: {
     ...Fonts.body14,
     color: Colors.white,
@@ -356,6 +421,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 224,
   },
+  ticketBottomDesktop: { width: 520, height: 34, paddingLeft: 24, paddingRight: 12 },
+  ticketTitleDesktop: {
+    ...Fonts.body16,
+    color: Colors.white,
+    lineHeight: 22,
+  },
+  ticketDateDesktop: {
+    color: Colors.white,
+    fontFamily: Fonts.regular.fontFamily,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 4,
+  },
+  ticketMetaDesktop: {
+    color: Colors.white,
+    fontFamily: Fonts.regular.fontFamily,
+    fontSize: 10,
+    lineHeight: 14,
+    maxWidth: 360,
+  },
   ticketMeta: {
     color: Colors.white,
     fontFamily: Fonts.regular.fontFamily,
@@ -372,6 +457,7 @@ const styles = StyleSheet.create({
     minWidth: 31,
     paddingHorizontal: 4,
   },
+  pricePillDesktop: { minWidth: 44, height: 22 },
   priceText: {
     color: Colors.white,
     fontFamily: Fonts.medium.fontFamily,
@@ -407,6 +493,7 @@ const styles = StyleSheet.create({
     padding: 6,
     width: 104,
   },
+  ticketStubDesktop: { height: 200, width: 200 },
   stubCategory: {
     color: Colors.white,
     fontFamily: Fonts.regular.fontFamily,
@@ -466,6 +553,7 @@ const styles = StyleSheet.create({
     top: 0,
     width: 1,
   },
+  ticketDividerDesktop: { left: 520, height: 200 },
   actionRow: {
     alignItems: 'center',
     alignSelf: 'center',
@@ -505,6 +593,10 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   footer: {
-    marginTop: 64,
+    marginTop: 0,
+  },
+  footerWrapper: {
+    width: '100%',
+    marginTop: 56,
   },
 });

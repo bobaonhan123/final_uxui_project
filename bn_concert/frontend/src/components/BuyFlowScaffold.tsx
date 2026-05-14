@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { BorderRadius, Colors, Fonts, Spacing } from '../constants/theme';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../constants/theme';
 import type { Concert } from '../types';
 
 const SEAT_MAP_IMAGE = require('../../assets/seat-section-map.png');
@@ -50,12 +50,14 @@ export function BuyTicketDateCard({
   timeLeft?: string;
   onChangeDate: () => void;
 }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
   const dateParts = getDateParts(concert?.date);
   const venueLabel = concert?.venue?.city || concert?.venue?.name || 'New York';
   const displayPrice = typeof price === 'number' && !Number.isNaN(price) ? price : concert?.min_price ?? 400;
 
   return (
-    <View style={styles.dateCard}>
+    <View style={[styles.dateCard, isDesktop && styles.dateCardDesktop]}>
       <View style={styles.dateBlock}>
         <Text style={styles.dateText}>{dateParts.day}</Text>
         <Text style={styles.dateText}>{dateParts.month}</Text>
@@ -103,8 +105,11 @@ export function BuyTicketDateCard({
 }
 
 export function BuyStepper({ currentStep }: { currentStep: number }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+
   return (
-    <View style={styles.stepper}>
+    <View style={[styles.stepper, isDesktop && styles.stepperDesktop]}>
       {STEP_LABELS.map((label, index) => {
         const step = index + 1;
         const isComplete = step < currentStep;
@@ -112,18 +117,23 @@ export function BuyStepper({ currentStep }: { currentStep: number }) {
 
         return (
           <React.Fragment key={label}>
-            <View style={styles.stepItem}>
-              <View style={[styles.stepCircle, isComplete && styles.stepCircleDone, isCurrent && styles.stepCircleCurrent]}>
+            <View style={[styles.stepItem, isDesktop && styles.stepItemDesktop]}>
+              <View style={[
+                styles.stepCircle,
+                isComplete && styles.stepCircleDone,
+                isCurrent && styles.stepCircleCurrent,
+                isDesktop && styles.stepCircleDesktop,
+              ]}>
                 {isComplete ? (
-                  <Ionicons name="checkmark" size={11} color={Colors.white} />
+                  <Ionicons name="checkmark" size={isDesktop ? 16 : 11} color={Colors.white} />
                 ) : (
-                  <Text style={[styles.stepNumber, isCurrent && styles.stepNumberCurrent]}>{step}</Text>
+                  <Text style={[styles.stepNumber, isCurrent && styles.stepNumberCurrent, isDesktop && styles.stepNumberDesktop]}>{step}</Text>
                 )}
               </View>
-              <Text numberOfLines={2} style={styles.stepLabel}>{label}</Text>
+              <Text numberOfLines={2} style={[styles.stepLabel, isDesktop && styles.stepLabelDesktop]}>{label}</Text>
             </View>
             {index < STEP_LABELS.length - 1 ? (
-              <View style={[styles.stepLine, isComplete && styles.stepLineDone]} />
+              <View style={[styles.stepLine, isComplete && styles.stepLineDone, isDesktop && styles.stepLineDesktop]} />
             ) : null}
           </React.Fragment>
         );
@@ -168,7 +178,11 @@ export function FigmaSeatMap({
   disabled?: boolean;
 }) {
   const { width } = useWindowDimensions();
-  const mapWidth = clamp(width - 32, 300, 328);
+  const isDesktop = width >= Breakpoints.desktop;
+    const availableWidth = isDesktop
+      ? Math.min(Layout.maxContentWidth, width)
+      : Math.max(0, width - 32);
+  const mapWidth = clamp(availableWidth, 328, Layout.maxContentWidth);
   const scale = mapWidth / 328;
   const mapHeight = 193 * scale;
 
@@ -232,6 +246,11 @@ const styles = StyleSheet.create({
     height: 135,
     marginTop: Spacing.md,
     width: 328,
+  },
+  dateCardDesktop: {
+    width: '100%',
+    alignSelf: 'stretch',
+    maxWidth: Layout.maxContentWidth,
   },
   dateBlock: {
     alignItems: 'center',
@@ -384,6 +403,38 @@ const styles = StyleSheet.create({
   },
   stepLineDone: {
     backgroundColor: Colors.primary,
+  },
+  /* Desktop variants */
+  stepperDesktop: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    width: Layout.maxContentWidth,
+    justifyContent: 'center',
+    marginTop: Spacing.lg,
+  },
+  stepItemDesktop: {
+    width: 120,
+    alignItems: 'center',
+  },
+  stepCircleDesktop: {
+    height: 36,
+    width: 36,
+    borderRadius: 18,
+    marginBottom: 6,
+  },
+  stepNumberDesktop: {
+    ...Fonts.body12,
+    lineHeight: 14,
+  },
+  stepLabelDesktop: {
+    fontSize: 12,
+    lineHeight: 16,
+    width: 120,
+  },
+  stepLineDesktop: {
+    width: 90,
+    height: 3,
+    marginTop: 14,
   },
   priceRange: {
     alignSelf: 'center',

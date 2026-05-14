@@ -6,13 +6,17 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius, Fonts } from '../../../src/constants/theme';
+import { Colors, Spacing, BorderRadius, Fonts, Breakpoints, Layout } from '../../../src/constants/theme';
 import { concertApi } from '../../../src/api/services';
 import { resolveImageUrl } from '../../../src/utils/images';
 import { Footer, LoadingScreen } from '../../../src/components';
+import Header from '../../../src/components/Header';
+import { useAuth } from '../../../src/context/AuthContext';
 import type { Concert } from '../../../src/types';
 
 const BUY_TICKET_BANNER =
@@ -44,6 +48,13 @@ const SUGGESTION_IMAGES = [
   'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=700&q=80',
   'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=700&q=80',
 ] as const;
+
+const MENU_ROWS = [
+  { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+  { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+  { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+  { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+];
 
 type DateCardOption = Concert & {
   displayKey: string;
@@ -82,6 +93,9 @@ function buildDateOptions(concerts: Concert[], representativeConcert: Concert): 
 export default function DateSelectionScreen() {
   const { concertId } = useLocalSearchParams<{ concertId: string }>();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+  const { isAuthenticated } = useAuth();
   const [concerts, setConcerts] = useState<Concert[]>([]);
   const [currentConcert, setCurrentConcert] = useState<Concert | null>(null);
   const [loading, setLoading] = useState(true);
@@ -148,25 +162,56 @@ export default function DateSelectionScreen() {
       subtitle: 'Exclusive summer stadium show',
       image: SUGGESTION_IMAGES[0],
     },
+    {
+      id: 'more-2',
+      title: 'Summer Festival',
+      subtitle: 'Open-air concerts near you',
+      image: SUGGESTION_IMAGES[1],
+    },
+    {
+      id: 'more-3',
+      title: 'Top Picks',
+      subtitle: 'Trending concerts this week',
+      image: bannerImage,
+    },
   ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.body}>
+        {isDesktop ? (
+          <Header
+            containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+            isDesktop={isDesktop}
+            isAuthenticated={isAuthenticated}
+            menuRows={MENU_ROWS}
+            onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
+            onMenuPress={() => {}}
+            // compact inline search for desktop
+            showSearch={'inline'}
+            searchPlaceholder={'Search here'}
+            onProfilePress={() => router.push('/(tabs)/profile')}
+            onLoginPress={() => router.push('/(auth)/login')}
+          />
+        ) : null}
+
+      <View style={[styles.body, isDesktop ? { maxWidth: Layout.maxContentWidth, paddingHorizontal: Layout.desktopHorizontalPadding } : null]}>
+
         <Image
           source={{ uri: bannerImage }}
           style={styles.bannerImage}
         />
 
+        <View style={[styles.dateList, isDesktop ? styles.dateListDesktop : null]}>
         {dateOptions.map((c) => {
           const dateObj = new Date(c.date);
           const isSoldOut = c.status === 'sold_out' || c.status === 'sold';
           const timeLabel = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          const displayTitle = (c.title || '').split('—')[0].trim() || (c.artist?.name || c.title || '');
 
           return (
             <TouchableOpacity
               key={c.displayKey}
-              style={styles.dateCard}
+              style={[styles.dateCard, isDesktop ? styles.dateCardDesktop : null]}
               onPress={() => router.push(`/buy/${c.routeId}/section`)}
               activeOpacity={0.7}
               disabled={isSoldOut}
@@ -185,7 +230,7 @@ export default function DateSelectionScreen() {
 
               <View style={styles.ticketInfoCard}>
                 <View style={styles.ticketInfoText}>
-                  <Text numberOfLines={2} style={styles.ticketTitle}>{c.title}</Text>
+                  <Text numberOfLines={isDesktop ? 2 : 1} style={styles.ticketTitle}>{displayTitle}</Text>
                   <View style={styles.metaRow}>
                     <Ionicons name="ticket-outline" size={16} color={Colors.neutral700} />
                     <Text style={styles.metaText}>Status: </Text>
@@ -215,6 +260,7 @@ export default function DateSelectionScreen() {
             </TouchableOpacity>
           );
         })}
+        </View>
 
         <Text style={styles.addressText}>{addressText}</Text>
 
@@ -228,51 +274,112 @@ export default function DateSelectionScreen() {
           </View>
         </View>
 
-        <Text style={styles.reviewsTitle}>Top reviews on this concert</Text>
-        <TouchableOpacity activeOpacity={0.75} style={styles.reviewFilter}>
-          <Text style={styles.reviewFilterText}>All reviews</Text>
-          <Ionicons name="chevron-down" size={14} color={Colors.neutral700} />
-        </TouchableOpacity>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.reviewScroller}
-          contentContainerStyle={styles.reviewScrollerContent}
-        >
-          {REVIEW_CARDS.map((review) => (
-            <View key={review.id} style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
-                <View style={styles.reviewMeta}>
-                  <Text numberOfLines={1} style={styles.reviewName}>{review.name}</Text>
-                  <Text style={styles.reviewDate}>{review.date}</Text>
-                </View>
+        <View style={styles.reviewsHeaderRow}>
+          <View>
+            <Text style={styles.reviewsTitle}>Top reviews on this concert</Text>
+            <View style={styles.reviewsSubRow}>
+              <Text style={styles.reviewsAverageLabel}>Average rate</Text>
+              <View style={styles.reviewsStarsRow}>
+                {(() => {
+                  const avg = Math.round((REVIEW_CARDS.reduce((s, r) => s + r.rating, 0) / REVIEW_CARDS.length) * 2) / 2;
+                  const full = Math.floor(avg);
+                  const half = avg % 1 !== 0;
+                  const stars: React.ReactNode[] = [];
+                  for (let i = 0; i < 5; i++) {
+                    if (i < full) stars.push(<Ionicons key={i} name="star" size={18} color={Colors.primary} />);
+                    else if (i === full && half) stars.push(<Ionicons key={i} name="star-half" size={18} color={Colors.primary} />);
+                    else stars.push(<Ionicons key={i} name="star-outline" size={18} color={Colors.primary} />);
+                  }
+                  return stars;
+                })()}
               </View>
-              <View style={styles.starsRow}>
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Ionicons
-                    key={`${review.id}-star-${index}`}
-                    name={index < review.rating ? 'star' : 'star-outline'}
-                    size={16}
-                    color="#F5A623"
-                  />
-                ))}
-              </View>
-              <Text style={styles.reviewBody}>{review.body}</Text>
-              <View style={styles.reviewActions}>
-                <View style={styles.reviewActionGroup}>
-                  <Ionicons name="thumbs-up-outline" size={16} color={Colors.neutral700} />
-                  <Text style={styles.reviewActionText}>24</Text>
-                </View>
-                <View style={styles.reviewActionGroup}>
-                  <Ionicons name="chatbubble-outline" size={16} color={Colors.neutral700} />
-                  <Text style={styles.reviewActionText}>Reply</Text>
-                </View>
-              </View>
+              <Pressable style={styles.writeReviewButton} onPress={() => {}}>
+                <Text style={styles.writeReviewText}>Write your view</Text>
+                <Ionicons name="pencil" size={14} color={Colors.neutral700} />
+              </Pressable>
             </View>
-          ))}
-        </ScrollView>
+          </View>
+          <Pressable style={styles.reviewFilterDesktop}>
+            <Text style={styles.reviewFilterText}>Location</Text>
+            <Ionicons name="chevron-down" size={14} color={Colors.neutral700} />
+          </Pressable>
+        </View>
+
+        {isDesktop ? (
+          <View style={styles.reviewsListDesktop}>
+            {REVIEW_CARDS.map((review) => (
+              <View key={review.id} style={styles.reviewRowDesktop}>
+                <Image source={{ uri: review.avatar }} style={styles.reviewAvatarDesktop} />
+                <View style={styles.reviewContentDesktop}>
+                  <View style={styles.reviewMetaRowDesktop}>
+                    <Text style={styles.reviewNameDesktop}>{review.name}</Text>
+                    <Text style={styles.reviewUserTag}>BNConcert user</Text>
+                  </View>
+                  <View style={styles.reviewsStarsRowLarge}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Ionicons key={i} name={i < review.rating ? 'star' : 'star-outline'} size={18} color={Colors.primary} />
+                    ))}
+                  </View>
+                  <Text style={styles.reviewBodyDesktop}>{review.body}</Text>
+                  <Text style={styles.reviewDateDesktop}>{review.date}</Text>
+                  <View style={styles.reviewActionsDesktop}>
+                    <View style={styles.reviewActionGroup}>
+                      <Ionicons name="thumbs-up-outline" size={18} color={Colors.neutral700} />
+                      <Text style={styles.reviewActionText}>21</Text>
+                    </View>
+                    <View style={styles.reviewActionGroup}>
+                      <Ionicons name="thumbs-down-outline" size={18} color={Colors.neutral700} />
+                      <Text style={styles.reviewActionText}>3</Text>
+                    </View>
+                    <Pressable>
+                      <Text style={styles.reviewActionText}>Reply</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.reviewScroller}
+            contentContainerStyle={styles.reviewScrollerContent}
+          >
+            {REVIEW_CARDS.map((review) => (
+              <View key={review.id} style={styles.reviewCard}>
+                <View style={styles.reviewHeader}>
+                  <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
+                  <View style={styles.reviewMeta}>
+                    <Text numberOfLines={1} style={styles.reviewName}>{review.name}</Text>
+                    <Text style={styles.reviewDate}>{review.date}</Text>
+                  </View>
+                </View>
+                <View style={styles.starsRow}>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Ionicons
+                      key={`${review.id}-star-${index}`}
+                      name={index < review.rating ? 'star' : 'star-outline'}
+                      size={16}
+                      color="#F5A623"
+                    />
+                  ))}
+                </View>
+                <Text style={styles.reviewBody}>{review.body}</Text>
+                <View style={styles.reviewActions}>
+                  <View style={styles.reviewActionGroup}>
+                    <Ionicons name="thumbs-up-outline" size={16} color={Colors.neutral700} />
+                    <Text style={styles.reviewActionText}>24</Text>
+                  </View>
+                  <View style={styles.reviewActionGroup}>
+                    <Ionicons name="chatbubble-outline" size={16} color={Colors.neutral700} />
+                    <Text style={styles.reviewActionText}>Reply</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        )}
 
         <Text style={styles.suggestionsTitle}>More suggestions for you</Text>
         <ScrollView
@@ -326,6 +433,19 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     marginBottom: Spacing.md,
     backgroundColor: Colors.borderLight,
+  },
+  dateList: {
+    marginTop: 0,
+  },
+  dateListDesktop: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: Spacing.lg,
+  },
+  dateCardDesktop: {
+    width: '48%',
+    marginBottom: Spacing.lg,
   },
   dateCard: {
     width: '100%',
@@ -559,6 +679,97 @@ const styles = StyleSheet.create({
     ...Fonts.body10,
     color: Colors.neutral700,
     lineHeight: 12,
+  },
+  reviewsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  reviewsSubRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginTop: 8,
+  },
+  reviewsAverageLabel: {
+    ...Fonts.body12,
+    color: Colors.neutral700,
+    marginRight: 8,
+  },
+  reviewsStarsRow: {
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center',
+  },
+  writeReviewButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  writeReviewText: {
+    ...Fonts.body12,
+    color: Colors.neutral700,
+  },
+  reviewFilterDesktop: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: 16,
+    height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  reviewsListDesktop: {
+    marginTop: 18,
+    gap: Spacing.lg,
+  },
+  reviewRowDesktop: {
+    flexDirection: 'row',
+    gap: Spacing.lg,
+    alignItems: 'flex-start',
+  },
+  reviewAvatarDesktop: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  reviewContentDesktop: {
+    flex: 1,
+  },
+  reviewMetaRowDesktop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  reviewNameDesktop: {
+    ...Fonts.body16,
+    color: Colors.text,
+  },
+  reviewUserTag: {
+    ...Fonts.body12,
+    color: Colors.success,
+  },
+  reviewsStarsRowLarge: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  reviewBodyDesktop: {
+    ...Fonts.body14,
+    color: Colors.neutral700,
+    marginTop: 12,
+  },
+  reviewDateDesktop: {
+    ...Fonts.body12,
+    color: Colors.neutral700,
+    marginTop: 12,
+  },
+  reviewActionsDesktop: {
+    flexDirection: 'row',
+    gap: 24,
+    marginTop: 12,
+    alignItems: 'center',
   },
   suggestionsTitle: {
     ...Fonts.heading16,

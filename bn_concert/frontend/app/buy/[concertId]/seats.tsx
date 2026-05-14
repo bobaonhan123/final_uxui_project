@@ -7,21 +7,31 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { concertApi } from '../../../src/api/services';
 import { Footer } from '../../../src/components';
+import Header from '../../../src/components/Header';
+import { useAuth } from '../../../src/context/AuthContext';
 import {
   BuyPriceSlider,
   BuyStepper,
   BuyTicketDateCard,
   FigmaSeatMap,
 } from '../../../src/components/BuyFlowScaffold';
-import { BorderRadius, Colors, Fonts, Spacing } from '../../../src/constants/theme';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../../../src/constants/theme';
 import type { Concert, EventSeat } from '../../../src/types';
 
 const MAX_SEATS = 6;
+
+const MENU_ROWS = [
+  { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+  { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+  { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+  { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+];
 
 export default function SeatsScreen() {
   const { concertId, sectionId, sectionName, sectionPrice } = useLocalSearchParams<{
@@ -30,7 +40,10 @@ export default function SeatsScreen() {
     sectionName: string;
     sectionPrice: string;
   }>();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [concert, setConcert] = useState<Concert | null>(null);
   const [seats, setSeats] = useState<EventSeat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,51 +133,76 @@ export default function SeatsScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <BuyTicketDateCard
-        concert={concert}
-        quantity={selectedSeats.length || 2}
-        price={displayPrice}
-        onChangeDate={() => router.push(`/buy/${concertId}`)}
-      />
-      <BuyStepper currentStep={2} />
-      <BuyPriceSlider price={displayPrice} />
+    <View style={styles.page}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {isDesktop ? (
+        <View style={styles.headerFullWidth}>
+          <Header
+            containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+            isDesktop={isDesktop}
+            isAuthenticated={isAuthenticated}
+            menuRows={MENU_ROWS}
+            onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
+            onMenuPress={() => {}}
+            showSearch={'inline'}
+            searchPlaceholder={'Search here'}
+            onProfilePress={() => router.push('/(tabs)/profile')}
+            onLoginPress={() => router.push('/(auth)/login')}
+          />
+        </View>
+      ) : null}
 
-      <View style={styles.mapWrap}>
-        <FigmaSeatMap seats={seats} selectedIds={selectedIds} onToggleSeat={toggleSeat} />
-      </View>
+        <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : null]}>
+          <View style={styles.mainContent}>
+            <BuyTicketDateCard
+              concert={concert}
+              quantity={selectedSeats.length || 2}
+              price={displayPrice}
+              onChangeDate={() => router.push(`/buy/${concertId}`)}
+            />
+            {!isDesktop ? <BuyStepper currentStep={2} /> : null}
+            {!isDesktop ? <BuyPriceSlider price={displayPrice} /> : null}
 
-      {selectedSeats.length > 0 ? (
-        <Text style={styles.selectionText}>
-          {selectedSeats.length} selected: {selectedSeatLabels.filter(Boolean).join(', ')}
-        </Text>
-      ) : (
-        <Text style={styles.selectionText}>Select your seats from the section plan</Text>
-      )}
+            <View style={[styles.mapWrap, isDesktop ? styles.mapWrapDesktop : null]}>
+              <FigmaSeatMap seats={seats} selectedIds={selectedIds} onToggleSeat={toggleSeat} />
+            </View>
 
-      <View style={styles.actionRow}>
-        <TouchableOpacity
-          activeOpacity={0.75}
-          onPress={() => router.push(`/buy/${concertId}`)}
-          style={styles.secondaryButton}
-        >
-          <Text style={styles.secondaryButtonText}>Change date</Text>
-        </TouchableOpacity>
+            {selectedSeats.length > 0 ? (
+              <Text style={styles.selectionText}>
+                {selectedSeats.length} selected: {selectedSeatLabels.filter(Boolean).join(', ')}
+              </Text>
+            ) : (
+              <Text style={styles.selectionText}>Select your seats from the section plan</Text>
+            )}
 
-        <TouchableOpacity
-          activeOpacity={0.8}
-          disabled={selectedSeats.length === 0}
-          onPress={goToConfirm}
-          style={[styles.primaryButton, selectedSeats.length === 0 && styles.primaryButtonDisabled]}
-        >
-          <Text style={[styles.primaryButtonText, selectedSeats.length === 0 && styles.primaryButtonTextDisabled]}>
-            Buy Ticket
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <View style={[styles.actionRow, isDesktop ? styles.actionRowDesktop : null]}>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => router.push(`/buy/${concertId}`)}
+                style={[styles.secondaryButton, isDesktop ? styles.secondaryButtonDesktop : null]}
+              >
+                <Text style={styles.secondaryButtonText}>Change date</Text>
+              </TouchableOpacity>
 
-      <Footer containerStyle={styles.footer} />
-    </ScrollView>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                disabled={selectedSeats.length === 0}
+                onPress={goToConfirm}
+                style={[styles.primaryButton, selectedSeats.length === 0 && styles.primaryButtonDisabled, isDesktop ? styles.primaryButtonDesktop : null]}
+              >
+                <Text style={[styles.primaryButtonText, selectedSeats.length === 0 && styles.primaryButtonTextDisabled]}>
+                  Buy Ticket
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footerWrapper}>
+          <Footer containerStyle={styles.footer} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -172,11 +210,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    width: '100%',
   },
   content: {
-    alignSelf: 'center',
-    maxWidth: 430,
+    width: '100%',
+  },
+  contentWrapper: {
+    width: '100%',
     paddingHorizontal: Spacing.md,
+  },
+  contentWrapperDesktop: {
+    paddingHorizontal: 0,
+    maxWidth: Layout.maxContentWidth,
+    alignSelf: 'center',
+  },
+  mainContent: {
     width: '100%',
   },
   center: {
@@ -185,26 +233,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  page: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    width: '100%',
+  },
   mapWrap: {
     marginTop: 8,
   },
+  mapWrapDesktop: {
+    marginTop: Spacing.xl,
+    width: '100%',
+  },
   selectionText: {
     ...Fonts.body10,
-    alignSelf: 'center',
     color: Colors.textSecondary,
     lineHeight: 12,
     marginTop: 8,
     minHeight: 12,
     textAlign: 'center',
-    width: 328,
+    width: '100%',
   },
   actionRow: {
     alignItems: 'center',
-    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
-    width: 328,
+    width: '100%',
+  },
+  actionRowDesktop: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 24,
+    paddingHorizontal: Spacing.lg,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -214,6 +275,9 @@ const styles = StyleSheet.create({
     height: 32,
     justifyContent: 'center',
     width: 97,
+  },
+  secondaryButtonDesktop: {
+    minWidth: 140,
   },
   secondaryButtonText: {
     ...Fonts.body10,
@@ -228,6 +292,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 97,
   },
+  primaryButtonDesktop: {
+    minWidth: 180,
+  },
   primaryButtonDisabled: {
     backgroundColor: Colors.borderLight,
   },
@@ -239,7 +306,14 @@ const styles = StyleSheet.create({
     color: Colors.textLight,
   },
   footer: {
-    marginHorizontal: -Spacing.md,
+    width: '100%',
     marginTop: 48,
+  },
+  footerWrapper: {
+    width: '100%',
+  },
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
   },
 });
