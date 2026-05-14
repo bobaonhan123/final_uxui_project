@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,10 +13,19 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { concertApi } from '../../../src/api/services';
 import { Footer, LoadingScreen } from '../../../src/components';
 import StadiumSectionMap from '../../../src/components/StadiumSectionMap';
-import { BorderRadius, Colors, Fonts, Spacing } from '../../../src/constants/theme';
+import Header from '../../../src/components/Header';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../../../src/constants/theme';
+import { useAuth } from '../../../src/context/AuthContext';
 import type { Concert, Section } from '../../../src/types';
 
 const HOLD_TIME_LABEL = '14:59';
+
+const MENU_ROWS = [
+  { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+  { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+  { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+  { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+];
 
 function getDateParts(dateValue: string) {
   const date = new Date(dateValue);
@@ -36,6 +46,9 @@ function formatPrice(value: number) {
 export default function SectionSelectionScreen() {
   const { concertId } = useLocalSearchParams<{ concertId: string }>();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+  const { isAuthenticated } = useAuth();
   const [concert, setConcert] = useState<Concert | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
@@ -105,16 +118,36 @@ export default function SectionSelectionScreen() {
     });
   };
 
+  const contentWrapperStyle = [styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : null];
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.dateCard}>
+    <View style={styles.page}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={contentWrapperStyle}>
+          {isDesktop ? (
+            <Header
+              containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+              isDesktop={isDesktop}
+              isAuthenticated={isAuthenticated}
+              menuRows={MENU_ROWS}
+              onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
+              onMenuPress={() => {}}
+              showSearch={'inline'}
+              searchPlaceholder={'Search here'}
+              onProfilePress={() => router.push('/(tabs)/profile')}
+              onLoginPress={() => router.push('/(auth)/login')}
+            />
+          ) : null}
+
+          <View style={[styles.mainContent, isDesktop ? { marginTop: Spacing.xl } : null]}>
+        <View style={styles.dateCard}>
         <View style={styles.dateBlock}>
           <Text style={styles.dateText}>{dateParts.day}</Text>
           <Text style={styles.dateText}>{dateParts.month}</Text>
           <Text style={styles.dateText}>{dateParts.year}</Text>
         </View>
 
-        <View style={styles.ticketCard}>
+          <View style={[styles.ticketCard, isDesktop ? styles.ticketCardDesktop : null]}>
           <View style={styles.ticketCopy}>
             <Text numberOfLines={2} style={styles.ticketTitle}>{concert.title}</Text>
             <View style={styles.metaRow}>
@@ -131,6 +164,8 @@ export default function SectionSelectionScreen() {
             </View>
           </View>
 
+      
+
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => router.push(`/buy/${concertId}`)}
@@ -140,41 +175,46 @@ export default function SectionSelectionScreen() {
           </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.stepper}>
-        <View style={styles.stepItem}>
-          <View style={[styles.stepCircle, styles.stepCircleDone]}>
-            <Ionicons name="checkmark" size={16} color={Colors.white} />
           </View>
-          <Text style={styles.stepLabel}>Location & date</Text>
-        </View>
-        <View style={styles.stepLine} />
-        <View style={styles.stepItem}>
-          <View style={styles.stepCircle}>
-            <Text style={styles.stepNumber}>2</Text>
+
+      {!isDesktop ? (
+        <>
+          <View style={styles.stepper}>
+            <View style={styles.stepItem}>
+              <View style={[styles.stepCircle, styles.stepCircleDone]}>
+                <Ionicons name="checkmark" size={16} color={Colors.white} />
+              </View>
+              <Text style={styles.stepLabel}>Location & date</Text>
+            </View>
+            <View style={styles.stepLine} />
+            <View style={styles.stepItem}>
+              <View style={styles.stepCircle}>
+                <Text style={styles.stepNumber}>2</Text>
+              </View>
+              <Text style={styles.stepLabel}>Seat</Text>
+            </View>
           </View>
-          <Text style={styles.stepLabel}>Seat</Text>
-        </View>
-      </View>
 
-      <View style={styles.pricePanel}>
-        <View style={styles.priceHeader}>
-          <Text style={styles.priceTitle}>Price Range</Text>
-          <Text style={styles.priceValue}>
-            {selectedSection ? formatPrice(selectedSection.price) : `${formatPrice(priceRange.min)} - ${formatPrice(priceRange.max)}`}
-          </Text>
-        </View>
+          <View style={styles.pricePanel}>
+            <View style={styles.priceHeader}>
+              <Text style={styles.priceTitle}>Price Range</Text>
+              <Text style={styles.priceValue}>
+                {selectedSection ? formatPrice(selectedSection.price) : `${formatPrice(priceRange.min)} - ${formatPrice(priceRange.max)}`}
+              </Text>
+            </View>
 
-        <View style={styles.sliderTrack}>
-          <View style={[styles.sliderFill, { width: `${priceProgress * 100}%` }]} />
-          <View style={[styles.sliderThumb, { left: `${priceProgress * 100}%` }]} />
-        </View>
+            <View style={styles.sliderTrack}>
+              <View style={[styles.sliderFill, { width: `${priceProgress * 100}%` }]} />
+              <View style={[styles.sliderThumb, { left: `${priceProgress * 100}%` }]} />
+            </View>
 
-        <View style={styles.priceTicks}>
-          <Text style={styles.priceTickText}>{formatPrice(priceRange.min)}</Text>
-          <Text style={styles.priceTickText}>{formatPrice(priceRange.max)}</Text>
-        </View>
-      </View>
+            <View style={styles.priceTicks}>
+              <Text style={styles.priceTickText}>{formatPrice(priceRange.min)}</Text>
+              <Text style={styles.priceTickText}>{formatPrice(priceRange.max)}</Text>
+            </View>
+          </View>
+        </>
+      ) : null}
 
       <StadiumSectionMap
         sections={sections}
@@ -182,11 +222,11 @@ export default function SectionSelectionScreen() {
         onSelectSection={setSelectedSectionId}
       />
 
-      <View style={styles.actionRow}>
+      <View style={[styles.actionRow, isDesktop ? styles.actionRowDesktop : null]}>
         <TouchableOpacity
           activeOpacity={0.75}
           onPress={() => router.push(`/buy/${concertId}`)}
-          style={styles.secondaryButton}
+          style={[styles.secondaryButton, isDesktop ? styles.secondaryButtonDesktop : null]}
         >
           <Text style={styles.secondaryButtonText}>Change Date</Text>
         </TouchableOpacity>
@@ -195,7 +235,7 @@ export default function SectionSelectionScreen() {
           activeOpacity={0.8}
           disabled={!canContinue}
           onPress={goToSeats}
-          style={[styles.primaryButton, !canContinue && styles.primaryButtonDisabled]}
+          style={[styles.primaryButton, !canContinue && styles.primaryButtonDisabled, isDesktop ? styles.primaryButtonDesktop : null]}
         >
           <Text style={[styles.primaryButtonText, !canContinue && styles.primaryButtonTextDisabled]}>
             Continue
@@ -203,8 +243,13 @@ export default function SectionSelectionScreen() {
         </TouchableOpacity>
       </View>
 
-      <Footer containerStyle={styles.footer} />
-    </ScrollView>
+        </View>
+
+        <View style={styles.footerWrapper}>
+          <Footer containerStyle={styles.footer} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -212,12 +257,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    width: '100%',
   },
   content: {
-    alignSelf: 'center',
-    maxWidth: 430,
-    paddingHorizontal: Spacing.md,
     paddingTop: Spacing.md,
+    width: '100%',
+  },
+  contentWrapper: {
+    width: '100%',
+    paddingHorizontal: Spacing.md,
+  },
+  contentWrapperDesktop: {
+    paddingHorizontal: 0,
+    maxWidth: Layout.maxContentWidth,
+    alignSelf: 'center',
+  },
+  mainContent: {
     width: '100%',
   },
   center: {
@@ -226,6 +281,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.white,
     padding: Spacing.lg,
+  },
+  page: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    width: '100%',
   },
   emptyTitle: {
     ...Fonts.h3,
@@ -272,6 +332,9 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 14,
     paddingTop: 14,
+  },
+  ticketCardDesktop: {
+    width: '100%',
   },
   ticketCopy: {
     flex: 1,
@@ -403,6 +466,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 24,
   },
+  actionRowDesktop: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.lg,
+    marginTop: 36,
+    paddingHorizontal: Spacing.lg,
+  },
   secondaryButton: {
     alignItems: 'center',
     borderColor: Colors.primary,
@@ -413,6 +483,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: Spacing.md,
     minWidth: 0,
+  },
+  secondaryButtonDesktop: {
+    flex: 0,
+    minWidth: 140,
   },
   secondaryButtonText: {
     ...Fonts.button14,
@@ -427,6 +501,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 0,
   },
+  primaryButtonDesktop: {
+    flex: 0,
+    minWidth: 180,
+  },
   primaryButtonDisabled: {
     backgroundColor: Colors.borderLight,
   },
@@ -438,7 +516,10 @@ const styles = StyleSheet.create({
     color: Colors.textLight,
   },
   footer: {
-    marginHorizontal: -Spacing.md,
+    width: '100%',
     marginTop: 60,
+  },
+  footerWrapper: {
+    width: '100%',
   },
 });

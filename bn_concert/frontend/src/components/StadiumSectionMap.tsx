@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 
-import { BorderRadius, Colors } from '../constants/theme';
+import { BorderRadius, Colors, Breakpoints, Layout } from '../constants/theme';
 import type { Section } from '../types';
 
 type StadiumSectionMapProps = {
@@ -45,7 +45,10 @@ export function StadiumSectionMap({
   onSelectSection,
 }: StadiumSectionMapProps) {
   const { width } = useWindowDimensions();
-  const mapWidth = clamp(width - 32, 300, BASE_WIDTH);
+  // Allow the map to grow larger on desktop while still clamping to sensible max
+  const desktopMax = Math.min(Math.max(Layout.maxContentWidth - 200, BASE_WIDTH), 900);
+  const maxWidthForClamp = width >= Breakpoints.desktop ? desktopMax : BASE_WIDTH;
+  const mapWidth = clamp(width - 32, 300, maxWidthForClamp);
   const scale = mapWidth / BASE_WIDTH;
   const mapHeight = BASE_HEIGHT * scale;
 

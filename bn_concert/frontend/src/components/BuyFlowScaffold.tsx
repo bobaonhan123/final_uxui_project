@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { BorderRadius, Colors, Fonts, Spacing } from '../constants/theme';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../constants/theme';
 import type { Concert } from '../types';
 
 const SEAT_MAP_IMAGE = require('../../assets/seat-section-map.png');
@@ -50,12 +50,14 @@ export function BuyTicketDateCard({
   timeLeft?: string;
   onChangeDate: () => void;
 }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
   const dateParts = getDateParts(concert?.date);
   const venueLabel = concert?.venue?.city || concert?.venue?.name || 'New York';
   const displayPrice = typeof price === 'number' && !Number.isNaN(price) ? price : concert?.min_price ?? 400;
 
   return (
-    <View style={styles.dateCard}>
+    <View style={[styles.dateCard, isDesktop && styles.dateCardDesktop]}>
       <View style={styles.dateBlock}>
         <Text style={styles.dateText}>{dateParts.day}</Text>
         <Text style={styles.dateText}>{dateParts.month}</Text>
@@ -168,7 +170,11 @@ export function FigmaSeatMap({
   disabled?: boolean;
 }) {
   const { width } = useWindowDimensions();
-  const mapWidth = clamp(width - 32, 300, 328);
+  const isDesktop = width >= Breakpoints.desktop;
+    const availableWidth = isDesktop
+      ? Math.min(Layout.maxContentWidth, width)
+      : Math.max(0, width - 32);
+  const mapWidth = clamp(availableWidth, 328, Layout.maxContentWidth);
   const scale = mapWidth / 328;
   const mapHeight = 193 * scale;
 
@@ -232,6 +238,11 @@ const styles = StyleSheet.create({
     height: 135,
     marginTop: Spacing.md,
     width: 328,
+  },
+  dateCardDesktop: {
+    width: '100%',
+    alignSelf: 'stretch',
+    maxWidth: Layout.maxContentWidth,
   },
   dateBlock: {
     alignItems: 'center',
