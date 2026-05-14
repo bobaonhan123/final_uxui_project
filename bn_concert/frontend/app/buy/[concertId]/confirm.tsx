@@ -150,8 +150,8 @@ export default function ConfirmScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : styles.contentWrapperMobile]}>
-        {isDesktop ? (
+      {isDesktop ? (
+        <View style={styles.headerFullWidth}>
           <Header
             containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
             isDesktop={isDesktop}
@@ -164,7 +164,9 @@ export default function ConfirmScreen() {
             onProfilePress={() => router.push('/(tabs)/profile')}
             onLoginPress={() => router.push('/(auth)/login')}
           />
-        ) : null}
+        </View>
+      ) : null}
+      <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : styles.contentWrapperMobile]}>
         <BuyTicketDateCard
           concert={concert}
           quantity={ticketItems.length || 2}
@@ -405,5 +407,9 @@ const styles = StyleSheet.create({
   },
   footerWrapper: {
     width: '100%',
+  },
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
   },
 });

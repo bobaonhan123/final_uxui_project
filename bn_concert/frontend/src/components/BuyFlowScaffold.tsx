@@ -105,8 +105,11 @@ export function BuyTicketDateCard({
 }
 
 export function BuyStepper({ currentStep }: { currentStep: number }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+
   return (
-    <View style={styles.stepper}>
+    <View style={[styles.stepper, isDesktop && styles.stepperDesktop]}>
       {STEP_LABELS.map((label, index) => {
         const step = index + 1;
         const isComplete = step < currentStep;
@@ -114,18 +117,23 @@ export function BuyStepper({ currentStep }: { currentStep: number }) {
 
         return (
           <React.Fragment key={label}>
-            <View style={styles.stepItem}>
-              <View style={[styles.stepCircle, isComplete && styles.stepCircleDone, isCurrent && styles.stepCircleCurrent]}>
+            <View style={[styles.stepItem, isDesktop && styles.stepItemDesktop]}>
+              <View style={[
+                styles.stepCircle,
+                isComplete && styles.stepCircleDone,
+                isCurrent && styles.stepCircleCurrent,
+                isDesktop && styles.stepCircleDesktop,
+              ]}>
                 {isComplete ? (
-                  <Ionicons name="checkmark" size={11} color={Colors.white} />
+                  <Ionicons name="checkmark" size={isDesktop ? 16 : 11} color={Colors.white} />
                 ) : (
-                  <Text style={[styles.stepNumber, isCurrent && styles.stepNumberCurrent]}>{step}</Text>
+                  <Text style={[styles.stepNumber, isCurrent && styles.stepNumberCurrent, isDesktop && styles.stepNumberDesktop]}>{step}</Text>
                 )}
               </View>
-              <Text numberOfLines={2} style={styles.stepLabel}>{label}</Text>
+              <Text numberOfLines={2} style={[styles.stepLabel, isDesktop && styles.stepLabelDesktop]}>{label}</Text>
             </View>
             {index < STEP_LABELS.length - 1 ? (
-              <View style={[styles.stepLine, isComplete && styles.stepLineDone]} />
+              <View style={[styles.stepLine, isComplete && styles.stepLineDone, isDesktop && styles.stepLineDesktop]} />
             ) : null}
           </React.Fragment>
         );
@@ -395,6 +403,38 @@ const styles = StyleSheet.create({
   },
   stepLineDone: {
     backgroundColor: Colors.primary,
+  },
+  /* Desktop variants */
+  stepperDesktop: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    width: Layout.maxContentWidth,
+    justifyContent: 'center',
+    marginTop: Spacing.lg,
+  },
+  stepItemDesktop: {
+    width: 120,
+    alignItems: 'center',
+  },
+  stepCircleDesktop: {
+    height: 36,
+    width: 36,
+    borderRadius: 18,
+    marginBottom: 6,
+  },
+  stepNumberDesktop: {
+    ...Fonts.body12,
+    lineHeight: 14,
+  },
+  stepLabelDesktop: {
+    fontSize: 12,
+    lineHeight: 16,
+    width: 120,
+  },
+  stepLineDesktop: {
+    width: 90,
+    height: 3,
+    marginTop: 14,
   },
   priceRange: {
     alignSelf: 'center',

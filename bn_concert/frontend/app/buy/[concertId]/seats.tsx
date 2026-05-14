@@ -135,22 +135,24 @@ export default function SeatsScreen() {
   return (
     <View style={styles.page}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : null]}>
-          {isDesktop ? (
-            <Header
-              containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
-              isDesktop={isDesktop}
-              isAuthenticated={isAuthenticated}
-              menuRows={MENU_ROWS}
-              onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
-              onMenuPress={() => {}}
-              showSearch={'inline'}
-              searchPlaceholder={'Search here'}
-              onProfilePress={() => router.push('/(tabs)/profile')}
-              onLoginPress={() => router.push('/(auth)/login')}
-            />
-          ) : null}
+      {isDesktop ? (
+        <View style={styles.headerFullWidth}>
+          <Header
+            containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+            isDesktop={isDesktop}
+            isAuthenticated={isAuthenticated}
+            menuRows={MENU_ROWS}
+            onMenuRowPress={(row) => row.route ? router.push(row.route) : undefined}
+            onMenuPress={() => {}}
+            showSearch={'inline'}
+            searchPlaceholder={'Search here'}
+            onProfilePress={() => router.push('/(tabs)/profile')}
+            onLoginPress={() => router.push('/(auth)/login')}
+          />
+        </View>
+      ) : null}
 
+        <View style={[styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : null]}>
           <View style={styles.mainContent}>
             <BuyTicketDateCard
               concert={concert}
@@ -309,5 +311,9 @@ const styles = StyleSheet.create({
   },
   footerWrapper: {
     width: '100%',
+  },
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
   },
 });

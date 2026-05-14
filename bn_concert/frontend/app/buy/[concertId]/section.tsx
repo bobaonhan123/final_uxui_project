@@ -123,8 +123,8 @@ export default function SectionSelectionScreen() {
   return (
     <View style={styles.page}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={contentWrapperStyle}>
-          {isDesktop ? (
+        {isDesktop ? (
+          <View style={styles.headerFullWidth}>
             <Header
               containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
               isDesktop={isDesktop}
@@ -137,8 +137,10 @@ export default function SectionSelectionScreen() {
               onProfilePress={() => router.push('/(tabs)/profile')}
               onLoginPress={() => router.push('/(auth)/login')}
             />
-          ) : null}
+          </View>
+        ) : null}
 
+        <View style={contentWrapperStyle}>
           <View style={[styles.mainContent, isDesktop ? { marginTop: Spacing.xl } : null]}>
         <View style={styles.dateCard}>
         <View style={styles.dateBlock}>
@@ -521,5 +523,9 @@ const styles = StyleSheet.create({
   },
   footerWrapper: {
     width: '100%',
+  },
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
   },
 });

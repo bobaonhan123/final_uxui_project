@@ -15,7 +15,7 @@ export default function DashboardLayout() {
     >
       <Stack.Screen name="profile" options={{ title: 'My Profile' }} />
       <Stack.Screen name="orders" options={{ title: 'My Orders' }} />
-      <Stack.Screen name="tickets" options={{ title: 'My Tickets' }} />
+      <Stack.Screen name="tickets" options={{ headerShown: false }} />
       <Stack.Screen name="gift-cards" options={{ title: 'Gift Cards' }} />
       <Stack.Screen name="payments" options={{ title: 'Payment Methods' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings' }} />
