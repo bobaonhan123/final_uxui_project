@@ -9,14 +9,15 @@ import {
   Modal,
   Linking,
   TextInput,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Spacing, BorderRadius, Fonts } from '../../src/constants/theme';
+// SafeAreaView not needed here; header/footer render inside ScrollView
+import { Colors, Spacing, BorderRadius, Fonts, Breakpoints, Layout, Shadows } from '../../src/constants/theme';
 import { supportApi } from '../../src/api/services';
 import { useAuth } from '../../src/context/AuthContext';
-import { Button, Header } from '../../src/components';
+import { Button, Header, Footer } from '../../src/components';
 
 type ServiceModal = 'email' | 'chat' | 'call' | null;
 
@@ -73,6 +74,9 @@ const FAQ_ITEMS: FaqItem[] = [
 export default function ContactScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+  const isAuthenticated = !!user;
 
   const [activeModal, setActiveModal] = useState<ServiceModal>(null);
   const [expandedFaqId, setExpandedFaqId] = useState<string>(FAQ_ITEMS[0].id);
@@ -99,6 +103,13 @@ export default function ContactScreen() {
       Alert.alert('Unavailable', fallbackMessage);
     }
   };
+
+  const MENU_ROWS = [
+    { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+    { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+    { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+    { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+  ];
 
   const handleCallNow = async () => {
     await openExternal(`tel:${SUPPORT_PHONE}`, 'Calling is not available on this device.');
@@ -130,88 +141,120 @@ export default function ContactScreen() {
     }
   };
 
+  const contentWrapperStyle = [styles.contentWrapper, isDesktop ? styles.contentWrapperDesktop : null];
+
   return (
-    <>
-      <SafeAreaView style={styles.container}>
-        <Header
-          showSearch
-          onSearchPress={() => router.push('/(tabs)/search' as never)}
-          onProfilePress={() => router.push('/(tabs)/profile' as never)}
-        />
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <Text style={styles.sectionLabel}>Customer Service</Text>
-          <Text style={styles.pageTitle}>How can we help you?</Text>
-          <Text style={styles.pageSubtitle}>
-            Have a question? We may already have the answer for you! Check out our Frequently Asked Questions (FAQ) section below.
-          </Text>
-
-          <Text style={styles.faqSectionTitle}>Frequently asked questions</Text>
-          <View style={styles.faqList}>
-            {FAQ_ITEMS.map((item) => {
-              const expanded = item.id === expandedFaqId;
-              return (
-                <Pressable
-                  key={item.id}
-                  style={[styles.faqItem, expanded ? styles.faqItemExpanded : null]}
-                  onPress={() => setExpandedFaqId(expanded ? '' : item.id)}
-                >
-                  <View style={[styles.faqItemHeader, expanded && styles.faqItemHeaderExpanded]}>
-                    <Text style={styles.faqQuestion}>{item.question}</Text>
-                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={Colors.neutral700} />
-                  </View>
-                  {expanded ? <Text style={styles.faqAnswer}>{item.answer}</Text> : null}
-                </Pressable>
-              );
-            })}
-
-            <Pressable style={styles.seeMoreButton} onPress={() => router.push('/dashboard/help' as never)}>
-              <Text style={styles.seeMoreText}>See More</Text>
-            </Pressable>
+    <View style={styles.page}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {isDesktop && (
+          <View style={styles.headerFullWidth}>
+            <Header
+              containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+              isDesktop={isDesktop}
+              isAuthenticated={isAuthenticated}
+              menuRows={MENU_ROWS}
+              onMenuRowPress={(row) => (row.route ? router.push(row.route) : undefined)}
+              onMenuPress={() => {}}
+              showSearch={'inline'}
+              searchPlaceholder={'Search here'}
+              onProfilePress={() => router.push('/(tabs)/profile' as never)}
+              onLoginPress={() => router.push('/(auth)/login' as never)}
+            />
           </View>
+        )}
 
-          <Text style={styles.helpTitle}>Can't find what you are looking for?</Text>
-          <Text style={styles.helpSubtitle}>Our self-help center is the fastest place to get help.</Text>
+        {!isDesktop && (
+          <Header
+            showSearch
+            onSearchPress={() => router.push('/(tabs)/search' as never)}
+            onProfilePress={() => router.push('/(tabs)/profile' as never)}
+          />
+        )}
 
-          <View style={styles.serviceRow}>
-            <Pressable style={styles.serviceCard} onPress={() => setActiveModal('email')}>
-              <Ionicons name="mail-outline" size={24} color={Colors.primary} />
-              <Text style={styles.serviceText}>Send Us an Email</Text>
-            </Pressable>
+        <View style={contentWrapperStyle}>
+            <Text style={styles.sectionLabel}>Customer Service</Text>
+            <Text style={styles.pageTitle}>How can we help you?</Text>
+            <Text style={styles.pageSubtitle}>
+              Have a question? We may already have the answer for you! Check out our Frequently Asked Questions (FAQ) section below.
+            </Text>
 
-            <Pressable style={styles.serviceCard} onPress={() => setActiveModal('chat')}>
-              <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.primary} />
-              <Text style={styles.serviceText}>Live Chat</Text>
-            </Pressable>
+            <Text style={styles.faqSectionTitle}>Frequently asked questions</Text>
+            <View style={styles.faqList}>
+              {FAQ_ITEMS.map((item) => {
+                const expanded = item.id === expandedFaqId;
+                return (
+                  <Pressable
+                    key={item.id}
+                    style={[styles.faqItem, expanded ? styles.faqItemExpanded : null]}
+                    onPress={() => setExpandedFaqId(expanded ? '' : item.id)}
+                  >
+                    <View style={[styles.faqItemHeader, expanded && styles.faqItemHeaderExpanded]}>
+                      <Text style={styles.faqQuestion}>{item.question}</Text>
+                      <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={Colors.neutral700} />
+                    </View>
+                    {expanded ? <Text style={styles.faqAnswer}>{item.answer}</Text> : null}
+                  </Pressable>
+                );
+              })}
 
-            <Pressable style={styles.serviceCard} onPress={() => setActiveModal('call')}>
-              <Ionicons name="call-outline" size={24} color={Colors.primary} />
-              <Text style={styles.serviceText}>Call Us</Text>
-            </Pressable>
+              <Pressable style={styles.seeMoreButton} onPress={() => router.push('/dashboard/help' as never)}>
+                <Text style={styles.seeMoreText}>See More</Text>
+              </Pressable>
+            </View>
+
+            <Text style={styles.helpTitle}>Can't find what you are looking for?</Text>
+            <Text style={styles.helpSubtitle}>Our self-help center is the fastest place to get help.</Text>
+
+            <View style={styles.serviceRow}>
+              <Pressable style={styles.serviceCard} onPress={() => setActiveModal('email')}>
+                <Ionicons name="mail-outline" size={24} color={Colors.primary} />
+                <Text style={styles.serviceText}>Send Us an Email</Text>
+              </Pressable>
+
+              <Pressable style={styles.serviceCard} onPress={() => setActiveModal('chat')}>
+                <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.primary} />
+                <Text style={styles.serviceText}>Live Chat</Text>
+              </Pressable>
+
+              <Pressable style={styles.serviceCard} onPress={() => setActiveModal('call')}>
+                <Ionicons name="call-outline" size={24} color={Colors.primary} />
+                <Text style={styles.serviceText}>Call Us</Text>
+              </Pressable>
+            </View>
           </View>
+        {isDesktop && (
+          <View style={[styles.footerWrapper, styles.footerWrapperDesktop]}>
+            <Footer containerStyle={[styles.footer, styles.footerDesktopContainer]} />
+          </View>
+        )}
         </ScrollView>
-      </SafeAreaView>
 
       <Modal visible={activeModal === 'call'} transparent animationType="fade" onRequestClose={() => setActiveModal(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
+        <Pressable style={[styles.chatModalOverlay, isDesktop ? styles.chatModalOverlayDesktop : styles.modalOverlay]} onPress={() => setActiveModal(null)}>
+          <Pressable style={[styles.modalCard, isDesktop ? styles.modalCardDesktop : null]} onPress={() => undefined}>
+            <Pressable style={styles.modalCloseIcon} onPress={() => setActiveModal(null)}>
+              <Ionicons name="close" size={16} color={Colors.neutral700} />
+            </Pressable>
+
             <Text style={styles.modalTitle}>Call Us</Text>
             <Text style={styles.modalText}>
               Our customer service is ready to help. The waiting time can be up to 4 minutes. Have your order number at hand.
             </Text>
             <Text style={styles.modalDetail}>{CALL_AVAILABILITY}</Text>
             <Text style={styles.modalDetail}>{CALL_HOURS}</Text>
-            <Text style={styles.modalPhone}>{SUPPORT_PHONE}</Text>
-            <Button title="Call Now" onPress={handleCallNow} />
-            <Pressable style={styles.modalCloseButton} onPress={() => setActiveModal(null)}>
-              <Text style={styles.modalCloseText}>Close</Text>
+
+            <Text style={styles.modalPhoneCentered}>{SUPPORT_PHONE}</Text>
+
+            <Pressable style={{ alignSelf: 'center', marginTop: Spacing.md }}>
+              <Button title="Call Now" onPress={handleCallNow} />
             </Pressable>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
       <Modal visible={activeModal === 'chat'} transparent animationType="fade" onRequestClose={() => setActiveModal(null)}>
-        <Pressable style={styles.chatModalOverlay} onPress={() => setActiveModal(null)}>
-          <Pressable style={styles.chatPanel} onPress={() => undefined}>
+        <Pressable style={[styles.chatModalOverlay, isDesktop ? styles.chatModalOverlayDesktop : null]} onPress={() => setActiveModal(null)}>
+          <Pressable style={[styles.chatPanel, isDesktop ? styles.chatPanelDesktop : null]} onPress={() => undefined}>
             <View style={styles.chatPanelHeader}>
               <Text style={styles.chatPanelTitle}>Virtual Assistant</Text>
               <View style={styles.onlineRow}>
@@ -236,7 +279,7 @@ export default function ContactScreen() {
                 placeholder="Ask anything..."
                 placeholderTextColor={Colors.textLight}
               />
-              <Pressable style={styles.chatSendButton}>
+              <Pressable style={[styles.chatSendButton, isDesktop ? styles.chatSendButtonDesktop : null]}>
                 <Ionicons name="chevron-forward" size={16} color={Colors.white} />
               </Pressable>
             </View>
@@ -246,7 +289,11 @@ export default function ContactScreen() {
 
       <Modal visible={activeModal === 'email'} transparent animationType="fade" onRequestClose={() => setActiveModal(null)}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
+          <View style={[styles.modalCard, isDesktop ? styles.modalCardDesktop : null]}>
+            <Pressable style={styles.modalCloseIcon} onPress={() => setActiveModal(null)}>
+              <Ionicons name="close" size={16} color={Colors.neutral700} />
+            </Pressable>
+
             <Text style={styles.modalTitle}>Send Us an Email</Text>
             <Text style={styles.modalText}>Complete this form so we can check it for you.</Text>
 
@@ -294,14 +341,14 @@ export default function ContactScreen() {
               />
             </View>
 
-            <Button title="Send" onPress={handleSendEmail} loading={sending} />
-            <Pressable style={styles.modalCloseButton} onPress={() => setActiveModal(null)}>
-              <Text style={styles.modalCloseText}>Close</Text>
+            <Pressable style={{ alignSelf: 'flex-end' }}>
+              <Button title="Send" onPress={handleSendEmail} loading={sending} />
             </Pressable>
           </View>
         </View>
       </Modal>
-    </>
+      
+    </View>
   );
 }
 
@@ -436,7 +483,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: Colors.overlay,
+    backgroundColor: Colors.loadingOverlay,
     paddingHorizontal: Spacing.lg,
     justifyContent: 'center',
   },
@@ -444,6 +491,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
+  },
+  modalCardDesktop: {
+    maxWidth: 560,
+    width: '100%',
+    alignSelf: 'center',
+    padding: Spacing.lg,
+    ...Shadows.lg,
+  },
+  modalCloseIcon: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 20,
   },
   modalTitle: {
     ...Fonts.h3,
@@ -465,6 +531,12 @@ const styles = StyleSheet.create({
     ...Fonts.h3,
     marginTop: Spacing.sm,
     marginBottom: Spacing.md,
+  },
+  modalPhoneCentered: {
+    ...Fonts.h2,
+    marginTop: Spacing.md,
+    textAlign: 'center',
+    color: Colors.neutral950,
   },
   onlineRow: {
     flexDirection: 'row',
@@ -499,6 +571,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: '100%',
   },
+  chatModalOverlayDesktop: {
+    backgroundColor: Colors.loadingOverlay,
+    paddingHorizontal: Spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chatPanelDesktop: {
+    width: 560,
+    height: 520,
+    maxWidth: '90%',
+    borderRadius: BorderRadius.lg,
+  },
   chatPanelHeader: {
     backgroundColor: Colors.primary,
     height: 72,
@@ -507,28 +591,28 @@ const styles = StyleSheet.create({
   },
   chatPanelTitle: {
     fontFamily: Fonts.medium.fontFamily,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 16,
+    lineHeight: 20,
     color: Colors.white,
   },
   chatPanelBody: {
     flex: 1,
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   chatGreetingBubble: {
     backgroundColor: Colors.white,
     borderColor: Colors.border,
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
-    minHeight: 80,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    minHeight: 120,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   chatGreeting: {
     fontFamily: Fonts.regular.fontFamily,
-    fontSize: 8,
-    lineHeight: 10,
+    fontSize: 14,
+    lineHeight: 20,
     color: Colors.neutral700,
   },
   chatComposerBar: {
@@ -536,7 +620,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     flexDirection: 'row',
     height: 56,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
   },
   chatInput: {
     backgroundColor: Colors.white,
@@ -544,12 +628,12 @@ const styles = StyleSheet.create({
     color: Colors.text,
     flex: 1,
     fontFamily: Fonts.regular.fontFamily,
-    fontSize: 8,
-    height: 22,
-    lineHeight: 10,
+    fontSize: 14,
+    height: 40,
+    lineHeight: 20,
     minWidth: 0,
-    paddingHorizontal: 10,
-    paddingVertical: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   chatSendButton: {
     width: 22,
@@ -559,6 +643,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 12,
+  },
+  chatSendButtonDesktop: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 16,
   },
   formField: {
     marginBottom: Spacing.sm,
@@ -594,5 +684,42 @@ const styles = StyleSheet.create({
   modalCloseText: {
     ...Fonts.medium,
     color: Colors.text,
+  },
+  contentWrapper: {
+    width: '100%',
+    paddingHorizontal: Spacing.md,
+  },
+  contentWrapperDesktop: {
+    paddingHorizontal: 0,
+    maxWidth: Layout.maxContentWidth,
+    alignSelf: 'center',
+  },
+  page: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    width: '100%',
+  },
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
+  },
+  footer: {
+    width: '100%',
+    marginTop: 60,
+  },
+  footerDesktopContainer: {
+    width: '100%',
+    backgroundColor: Colors.black,
+  },
+  footerWrapper: {
+    width: '100%',
+  },
+  footerWrapperDesktop: {
+    // cancel the ScrollView content horizontal padding so footer bleeds edge-to-edge
+    marginHorizontal: -Spacing.md,
+  },
+  footerOuter: {
+    width: '100%',
+    backgroundColor: 'transparent',
   },
 });

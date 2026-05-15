@@ -8,11 +8,13 @@ import {
   RefreshControl,
   Image,
   Alert,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BorderRadius, Colors, Fonts, Spacing } from '../../src/constants/theme';
+import { BorderRadius, Colors, Fonts, Spacing, Breakpoints, Layout } from '../../src/constants/theme';
+import { Header } from '../../src/components';
 import { useAuth } from '../../src/context/AuthContext';
 import { LoadingScreen } from '../../src/components';
 import { resolveImageUrl } from '../../src/utils/images';
@@ -66,6 +68,9 @@ export default function ProfileScreen() {
   const pathname = usePathname();
   const [refreshing, setRefreshing] = React.useState(false);
   const activeRoute = getActiveDashboardRoute(pathname);
+
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -133,46 +138,115 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
-        bounces={false}
-      >
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)' as never)}>
-          <Ionicons name="chevron-back" size={14} color={Colors.text} />
-          <Text style={styles.backLabel}>Back</Text>
-        </Pressable>
+      {isDesktop ? (
+        <>
+          <View style={styles.headerFullWidth}>
+            <Header
+              containerStyle={{ maxWidth: Layout.maxContentWidth, alignSelf: 'center' }}
+              isDesktop={isDesktop}
+              isAuthenticated={isAuthenticated}
+              menuRows={[
+                { id: 'menu-contact', icon: 'call-outline', label: 'Contact us', route: '/dashboard/contact' },
+                { id: 'menu-tickets', icon: 'ticket-outline', label: 'Tickets', route: '/(tabs)/tickets' },
+                { id: 'menu-blog', icon: 'document-text-outline', label: 'Blog', route: '/(tabs)/blog' },
+                { id: 'menu-language', icon: 'information-circle-outline', label: 'Language' },
+              ]}
+              onMenuRowPress={(r) => r?.route && router.push(r.route as never)}
+              showSearch={'inline'}
+              onProfilePress={() => router.push('/(tabs)/profile' as never)}
+              onLoginPress={() => router.push('/(auth)/login' as never)}
+            />
+          </View>
 
-        <Pressable hitSlop={8} onPress={() => router.replace('/(tabs)' as never)}>
-          <Text style={styles.logo}>BNConcert</Text>
-        </Pressable>
+          <ScrollView
+            contentContainerStyle={styles.desktopScroll}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
+            bounces={false}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.desktopInner}>
+              <View style={styles.leftColumn}>
+                <View style={styles.profileBlockDesktop}>
+                  {avatarUrl ? (
+                    <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                  ) : (
+                    <View style={styles.avatarPlaceholder}>
+                      <Text style={styles.initials}>{initials || user.email[0]?.toUpperCase() || 'U'}</Text>
+                    </View>
+                  )}
+                  <Text style={styles.name}>{fullName}</Text>
+                </View>
 
-        <View style={styles.profileBlock}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.initials}>{initials || user.email[0]?.toUpperCase() || 'U'}</Text>
+                <View style={[styles.menuGroup, styles.menuGroupDesktop]}>
+                  {PRIMARY_MENU_ITEMS.map((item, index) =>
+                    renderMenuItem(
+                      item,
+                      index === PRIMARY_MENU_ITEMS.length - 1,
+                      false,
+                      activeRoute === item.route
+                    )
+                  )}
+                </View>
+
+                <Pressable style={[styles.logoutBtn, styles.logoutBtnDesktop]} onPress={handleLogout}>
+                  <Text style={styles.logoutText}>Log out</Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.rightColumn}>
+                <View style={styles.profileCard}>
+                  <Text style={styles.greeting}>Hello {user.first_name},</Text>
+                  <Text style={styles.greetingSub}>Here you can find all information about your profile</Text>
+                  <Pressable onPress={() => router.push('/dashboard/profile' as never)}>
+                    <Text style={styles.editLink}>Edit your profile</Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
-          )}
-          <Text style={styles.name}>{fullName}</Text>
-        </View>
+          </ScrollView>
+        </>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.content}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
+          bounces={false}
+        >
+          <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)' as never)}>
+            <Ionicons name="chevron-back" size={14} color={Colors.text} />
+            <Text style={styles.backLabel}>Back</Text>
+          </Pressable>
 
-        <View style={styles.menuGroup}>
-          {PRIMARY_MENU_ITEMS.map((item, index) =>
-            renderMenuItem(
-              item,
-              index === PRIMARY_MENU_ITEMS.length - 1,
-              false,
-              false
-            )
-          )}
-        </View>
+          <Pressable hitSlop={8} onPress={() => router.replace('/(tabs)' as never)}>
+            <Text style={styles.logo}>BNConcert</Text>
+          </Pressable>
 
-        <Pressable style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Log out</Text>
-        </Pressable>
-      </ScrollView>
+          <View style={styles.profileBlock}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.initials}>{initials || user.email[0]?.toUpperCase() || 'U'}</Text>
+              </View>
+            )}
+            <Text style={styles.name}>{fullName}</Text>
+          </View>
+
+          <View style={styles.menuGroup}>
+            {PRIMARY_MENU_ITEMS.map((item, index) =>
+              renderMenuItem(
+                item,
+                index === PRIMARY_MENU_ITEMS.length - 1,
+                false,
+                false
+              )
+            )}
+          </View>
+
+          <Pressable style={styles.logoutBtn} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Log out</Text>
+          </Pressable>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -304,5 +378,68 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.medium.fontFamily,
     fontSize: 14,
     color: Colors.error,
+  },
+  /* desktop-specific */
+  headerFullWidth: {
+    width: '100%',
+    backgroundColor: Colors.white,
+  },
+  desktopScroll: {
+    paddingBottom: Spacing.xl,
+  },
+  desktopInner: {
+    flexDirection: 'row',
+    maxWidth: Layout.maxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.md,
+  },
+  leftColumn: {
+    width: 328,
+    paddingRight: Spacing.md,
+  },
+  profileBlockDesktop: {
+    alignItems: 'flex-start',
+    marginTop: 8,
+    marginBottom: Spacing.md,
+  },
+  menuGroupDesktop: {
+    width: '100%',
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+  },
+  logoutBtnDesktop: {
+    width: '100%',
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    marginTop: Spacing.lg,
+  },
+  rightColumn: {
+    flex: 1,
+    paddingLeft: Spacing.md,
+  },
+  profileCard: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    minHeight: 480,
+  },
+  greeting: {
+    fontFamily: Fonts.medium.fontFamily,
+    fontSize: 18,
+    color: Colors.neutral700,
+  },
+  greetingSub: {
+    marginTop: Spacing.sm,
+    fontFamily: Fonts.regular.fontFamily,
+    color: Colors.textSecondary,
+  },
+  editLink: {
+    marginTop: Spacing.md,
+    color: Colors.primary,
+    fontFamily: Fonts.medium.fontFamily,
   },
 });

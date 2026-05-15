@@ -11,12 +11,13 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../../src/api/services';
 import { getPasswordStrengthError } from '../../src/constants/auth';
-import { Colors } from '../../src/constants/theme';
+import { Colors, Breakpoints, Layout, Spacing } from '../../src/constants/theme';
 
 interface ApiError {
   response?: {
@@ -279,6 +280,9 @@ export default function RegisterScreen() {
     }
   };
 
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -286,78 +290,136 @@ export default function RegisterScreen() {
     >
       <ImageBackground source={{ uri: AUTH_BACKGROUND_URI }} style={styles.background} imageStyle={styles.backgroundImage}>
         <View style={styles.overlay}>
-          <ScrollView
-            bounces={false}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.scrollContent}
-          >
-            <View style={styles.canvas}>
-              <View style={styles.statusBar}>
-                <Text style={styles.statusTime}>12:30</Text>
-                <View style={styles.statusIcons}>
-                  <Ionicons name="cellular" size={12} color={Colors.white} />
-                  <Ionicons name="wifi" size={12} color={Colors.white} />
-                  <Ionicons name="battery-half" size={14} color={Colors.white} />
+          {isDesktop ? (
+            <View style={styles.desktopRow}>
+              <View style={styles.leftPanel}>
+                <View style={styles.leftInner}>
+                  <Text style={[styles.heroTitle, styles.heroTitleDesktop]}>Welcome</Text>
+                  <Text style={[styles.heroSubtitle, styles.heroSubtitleDesktop]}>{HERO_SUBTITLE}</Text>
+                  <View style={styles.heroDivider} />
                 </View>
               </View>
 
-              {step > 1 ? (
-                <Pressable style={styles.backButton} onPress={handlePreviousStep}>
-                  <Ionicons name="chevron-back-outline" size={16} color={Colors.white} />
-                  <Text style={styles.backLabel}>Back</Text>
-                </Pressable>
-              ) : null}
+              <View style={styles.rightPanel}>
+                <View style={styles.cardWrapper}>
+                  <View style={[styles.card, styles.cardDesktop]}>
+                    <View style={styles.cardContent}>
+                      <View>
+                        <View style={styles.stepIndicator}>
+                          {[1, 2, 3, 4].map((s) => (
+                            <View key={s} style={[styles.stepDot, s <= step && styles.stepDotActive]} />
+                          ))}
+                        </View>
+                        <Text style={styles.cardTitle}>{getStepTitle()}</Text>
+                        <Text style={styles.cardSubtitle}>{getStepSubtitle()}</Text>
+                      </View>
 
-              <View style={styles.heroBlock}>
-                <Text style={styles.heroTitle}>Welcome</Text>
-                <Text style={styles.heroSubtitle}>{HERO_SUBTITLE}</Text>
-                <View style={styles.heroDivider} />
-              </View>
-
-              <View style={styles.card}>
-                <View style={styles.cardContent}>
-                  <View>
-                    <View style={styles.stepIndicator}>
-                      {[1, 2, 3, 4].map((s) => (
-                        <View key={s} style={[styles.stepDot, s <= step && styles.stepDotActive]} />
-                      ))}
+                      <View style={styles.fieldsGroup}>{renderStepContent()}</View>
                     </View>
-                    <Text style={styles.cardTitle}>{getStepTitle()}</Text>
-                    <Text style={styles.cardSubtitle}>{getStepSubtitle()}</Text>
+
+                    <View style={styles.buttonRow}>
+                      {step > 1 ? (
+                        <Pressable style={styles.secondaryButton} onPress={handlePreviousStep}>
+                          <Text style={styles.secondaryButtonText}>Back</Text>
+                        </Pressable>
+                      ) : null}
+                      <Pressable
+                        style={[styles.primaryButton, step > 1 && styles.primaryButtonFlexed]}
+                        onPress={step === 4 ? handleRegister : handleNextStep}
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <ActivityIndicator size="small" color={Colors.white} />
+                        ) : (
+                          <Text style={styles.primaryButtonText}>{step === 4 ? 'Complete' : 'Next'}</Text>
+                        )}
+                      </Pressable>
+                    </View>
+
+                    <View style={styles.footerRow}>
+                      <Text style={styles.footerText}>Already have an account? </Text>
+                      <Pressable onPress={() => router.replace('/(auth)/login')}>
+                        <Text style={styles.footerLink}>Sign in</Text>
+                      </Pressable>
+                    </View>
                   </View>
-
-                  <View style={styles.fieldsGroup}>{renderStepContent()}</View>
-                </View>
-
-                <View style={styles.buttonRow}>
-                  {step > 1 ? (
-                    <Pressable style={styles.secondaryButton} onPress={handlePreviousStep}>
-                      <Text style={styles.secondaryButtonText}>Back</Text>
-                    </Pressable>
-                  ) : null}
-                  <Pressable
-                    style={[styles.primaryButton, step > 1 && styles.primaryButtonFlexed]}
-                    onPress={step === 4 ? handleRegister : handleNextStep}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <ActivityIndicator size="small" color={Colors.white} />
-                    ) : (
-                      <Text style={styles.primaryButtonText}>{step === 4 ? 'Complete' : 'Next'}</Text>
-                    )}
-                  </Pressable>
-                </View>
-
-                <View style={styles.footerRow}>
-                  <Text style={styles.footerText}>Already have an account? </Text>
-                  <Pressable onPress={() => router.replace('/(auth)/login')}>
-                    <Text style={styles.footerLink}>Sign in</Text>
-                  </Pressable>
                 </View>
               </View>
             </View>
-          </ScrollView>
+          ) : (
+            <ScrollView
+              bounces={false}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.scrollContent}
+            >
+              <View style={styles.canvas}>
+                <View style={styles.statusBar}>
+                  <Text style={styles.statusTime}>12:30</Text>
+                  <View style={styles.statusIcons}>
+                    <Ionicons name="cellular" size={12} color={Colors.white} />
+                    <Ionicons name="wifi" size={12} color={Colors.white} />
+                    <Ionicons name="battery-half" size={14} color={Colors.white} />
+                  </View>
+                </View>
+
+                {step > 1 ? (
+                  <Pressable style={styles.backButton} onPress={handlePreviousStep}>
+                    <Ionicons name="chevron-back-outline" size={16} color={Colors.white} />
+                    <Text style={styles.backLabel}>Back</Text>
+                  </Pressable>
+                ) : null}
+
+                <View style={styles.heroBlock}>
+                  <Text style={styles.heroTitle}>Welcome</Text>
+                  <Text style={styles.heroSubtitle}>{HERO_SUBTITLE}</Text>
+                  <View style={styles.heroDivider} />
+                </View>
+
+                <View style={styles.card}>
+                  <View style={styles.cardContent}>
+                    <View>
+                      <View style={styles.stepIndicator}>
+                        {[1, 2, 3, 4].map((s) => (
+                          <View key={s} style={[styles.stepDot, s <= step && styles.stepDotActive]} />
+                        ))}
+                      </View>
+                      <Text style={styles.cardTitle}>{getStepTitle()}</Text>
+                      <Text style={styles.cardSubtitle}>{getStepSubtitle()}</Text>
+                    </View>
+
+                    <View style={styles.fieldsGroup}>{renderStepContent()}</View>
+                  </View>
+
+                  <View style={styles.buttonRow}>
+                    {step > 1 ? (
+                      <Pressable style={styles.secondaryButton} onPress={handlePreviousStep}>
+                        <Text style={styles.secondaryButtonText}>Back</Text>
+                      </Pressable>
+                    ) : null}
+                    <Pressable
+                      style={[styles.primaryButton, step > 1 && styles.primaryButtonFlexed]}
+                      onPress={step === 4 ? handleRegister : handleNextStep}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <ActivityIndicator size="small" color={Colors.white} />
+                      ) : (
+                        <Text style={styles.primaryButtonText}>{step === 4 ? 'Complete' : 'Next'}</Text>
+                      )}
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.footerRow}>
+                    <Text style={styles.footerText}>Already have an account? </Text>
+                    <Pressable onPress={() => router.replace('/(auth)/login')}>
+                      <Text style={styles.footerLink}>Sign in</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+          )}
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -444,6 +506,45 @@ const styles = StyleSheet.create({
     width: 159,
     height: 1,
     backgroundColor: Colors.primary,
+  },
+  /* desktop layout */
+  desktopRow: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+  },
+  leftPanel: {
+    flex: 1,
+    paddingLeft: Spacing.lg,
+    paddingRight: Spacing.lg,
+    justifyContent: 'center',
+  },
+  leftInner: {
+    maxWidth: Layout.maxContentWidth / 2,
+  },
+  rightPanel: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+  },
+  cardWrapper: {
+    width: 620,
+    paddingHorizontal: Spacing.md,
+  },
+  cardDesktop: {
+    minHeight: 0,
+    marginTop: 0,
+  },
+  heroTitleDesktop: {
+    fontSize: 48,
+    lineHeight: 56,
+    color: Colors.primary,
+  },
+  heroSubtitleDesktop: {
+    fontSize: 18,
+    lineHeight: 26,
   },
   card: {
     marginTop: 16,
