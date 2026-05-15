@@ -11,11 +11,12 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { authApi } from '../../src/api/services';
-import { Colors } from '../../src/constants/theme';
+import { useAuth } from '../../src/context/AuthContext';
+import { Colors, Breakpoints, Layout, Spacing } from '../../src/constants/theme';
 
 interface ApiError {
   response?: {
@@ -57,7 +58,7 @@ export default function LoginScreen() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await authApi.login(email.trim(), password);
+      await login(email.trim(), password);
       router.replace('/(tabs)');
     } catch (err) {
       const apiErr = err as ApiError;
@@ -68,6 +69,10 @@ export default function LoginScreen() {
     }
   };
 
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= Breakpoints.desktop;
+  const { login } = useAuth();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -75,110 +80,202 @@ export default function LoginScreen() {
     >
       <ImageBackground source={{ uri: AUTH_BACKGROUND_URI }} style={styles.background} imageStyle={styles.backgroundImage}>
         <View style={styles.overlay}>
-          <ScrollView
-            bounces={false}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.scrollContent}
-          >
-            <View style={styles.canvas}>
-              <View style={styles.statusBar}>
-                <Text style={styles.statusTime}>12:30</Text>
-                <View style={styles.statusIcons}>
-                  <Ionicons name="cellular" size={12} color={Colors.white} />
-                  <Ionicons name="wifi" size={12} color={Colors.white} />
-                  <Ionicons name="battery-half" size={14} color={Colors.white} />
+          {isDesktop ? (
+            <View style={styles.desktopRow}>
+              <View style={styles.leftPanel}>
+                <View style={styles.leftInner}>
+                  <Text style={[styles.heroTitle, styles.heroTitleDesktop]}>Welcome back</Text>
+                  <Text style={[styles.heroSubtitle, styles.heroSubtitleDesktop]}>{HERO_SUBTITLE}</Text>
+                  <View style={styles.heroDivider} />
                 </View>
               </View>
 
-              <Pressable style={styles.backButton} onPress={() => router.back()}>
-                <Ionicons name="chevron-back-outline" size={16} color={Colors.white} />
-                <Text style={styles.backLabel}>Back</Text>
-              </Pressable>
+              <View style={styles.rightPanel}>
+                <View style={styles.cardWrapper}>
+                  <View style={[styles.card, styles.cardDesktop]}>
+                    <View style={styles.cardContent}>
+                      <Text style={styles.cardTitle}>Login</Text>
 
-              <View style={styles.heroBlock}>
-                <Text style={styles.heroTitle}>Welcome back</Text>
-                <Text style={styles.heroSubtitle}>{HERO_SUBTITLE}</Text>
-                <View style={styles.heroDivider} />
-              </View>
+                      <View style={styles.fieldsGroup}>
+                        <View>
+                          <Text style={styles.label}>Email</Text>
+                          <View style={[styles.inputShell, focusedField === 'email' && styles.inputShellFocused]}>
+                            <TextInput
+                              value={email}
+                              onChangeText={setEmail}
+                              placeholder="Enter your email"
+                              placeholderTextColor={Colors.textSecondary}
+                              autoCapitalize="none"
+                              keyboardType="email-address"
+                              style={styles.input}
+                              onFocus={() => setFocusedField('email')}
+                              onBlur={() => setFocusedField(null)}
+                            />
+                          </View>
+                        </View>
 
-              <View style={styles.card}>
-                <View style={styles.cardContent}>
-                  <Text style={styles.cardTitle}>Login</Text>
-
-                  <View style={styles.fieldsGroup}>
-                    <View>
-                      <Text style={styles.label}>Email</Text>
-                      <View style={[styles.inputShell, focusedField === 'email' && styles.inputShellFocused]}>
-                        <TextInput
-                          value={email}
-                          onChangeText={setEmail}
-                          placeholder="Enter your email"
-                          placeholderTextColor={Colors.textSecondary}
-                          autoCapitalize="none"
-                          keyboardType="email-address"
-                          style={styles.input}
-                          onFocus={() => setFocusedField('email')}
-                          onBlur={() => setFocusedField(null)}
-                        />
+                        <View>
+                          <Text style={styles.label}>Password</Text>
+                          <View style={[styles.inputShell, focusedField === 'password' && styles.inputShellFocused]}>
+                            <TextInput
+                              value={password}
+                              onChangeText={setPassword}
+                              placeholder="Enter your password"
+                              placeholderTextColor={Colors.textSecondary}
+                              secureTextEntry={!showPassword}
+                              style={styles.input}
+                              onFocus={() => setFocusedField('password')}
+                              onBlur={() => setFocusedField(null)}
+                            />
+                            <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
+                              <Ionicons
+                                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                                size={16}
+                                color={Colors.textSecondary}
+                              />
+                            </Pressable>
+                          </View>
+                          <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+                            <Text style={styles.forgotLink}>Forget password?</Text>
+                          </Pressable>
+                        </View>
                       </View>
+
+                      <Pressable
+                        style={[styles.primaryButton, !canSubmit && styles.primaryButtonDisabled]}
+                        onPress={handleLogin}
+                        disabled={!canSubmit}
+                      >
+                        {loading ? (
+                          <ActivityIndicator size="small" color={Colors.white} />
+                        ) : (
+                          <Text style={[styles.primaryButtonText, !canSubmit && styles.primaryButtonTextDisabled]}>
+                            Login
+                          </Text>
+                        )}
+                      </Pressable>
+
+                      <Pressable style={styles.googleButton} onPress={() => Alert.alert('Coming soon', 'Google login is not configured yet.') }>
+                        <Text style={styles.googleButtonText}>Continue with Google</Text>
+                      </Pressable>
                     </View>
 
-                    <View>
-                      <Text style={styles.label}>Password</Text>
-                      <View style={[styles.inputShell, focusedField === 'password' && styles.inputShellFocused]}>
-                        <TextInput
-                          value={password}
-                          onChangeText={setPassword}
-                          placeholder="Enter your password"
-                          placeholderTextColor={Colors.textSecondary}
-                          secureTextEntry={!showPassword}
-                          style={styles.input}
-                          onFocus={() => setFocusedField('password')}
-                          onBlur={() => setFocusedField(null)}
-                        />
-                        <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                          <Ionicons
-                            name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                            size={16}
-                            color={Colors.textSecondary}
-                          />
-                        </Pressable>
-                      </View>
-                      <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-                        <Text style={styles.forgotLink}>Forget password?</Text>
+                    <View style={styles.footerRow}>
+                      <Text style={styles.footerText}>Don&apos;t have an account? </Text>
+                      <Pressable onPress={() => router.push('/(auth)/register')}>
+                        <Text style={styles.footerLink}>Make an account</Text>
                       </Pressable>
                     </View>
                   </View>
-
-                  <Pressable
-                    style={[styles.primaryButton, !canSubmit && styles.primaryButtonDisabled]}
-                    onPress={handleLogin}
-                    disabled={!canSubmit}
-                  >
-                    {loading ? (
-                      <ActivityIndicator size="small" color={Colors.white} />
-                    ) : (
-                      <Text style={[styles.primaryButtonText, !canSubmit && styles.primaryButtonTextDisabled]}>
-                        Login
-                      </Text>
-                    )}
-                  </Pressable>
-
-                  <Pressable style={styles.googleButton} onPress={() => Alert.alert('Coming soon', 'Google login is not configured yet.')}>
-                    <Text style={styles.googleButtonText}>Continue with Google</Text>
-                  </Pressable>
-                </View>
-
-                <View style={styles.footerRow}>
-                  <Text style={styles.footerText}>Don&apos;t have an account? </Text>
-                  <Pressable onPress={() => router.push('/(auth)/register')}>
-                    <Text style={styles.footerLink}>Make an account</Text>
-                  </Pressable>
                 </View>
               </View>
             </View>
-          </ScrollView>
+          ) : (
+            <ScrollView
+              bounces={false}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.scrollContent}
+            >
+              <View style={styles.canvas}>
+                <View style={styles.statusBar}>
+                  <Text style={styles.statusTime}>12:30</Text>
+                  <View style={styles.statusIcons}>
+                    <Ionicons name="cellular" size={12} color={Colors.white} />
+                    <Ionicons name="wifi" size={12} color={Colors.white} />
+                    <Ionicons name="battery-half" size={14} color={Colors.white} />
+                  </View>
+                </View>
+
+                <Pressable style={styles.backButton} onPress={() => router.back()}>
+                  <Ionicons name="chevron-back-outline" size={16} color={Colors.white} />
+                  <Text style={styles.backLabel}>Back</Text>
+                </Pressable>
+
+                <View style={styles.heroBlock}>
+                  <Text style={styles.heroTitle}>Welcome back</Text>
+                  <Text style={styles.heroSubtitle}>{HERO_SUBTITLE}</Text>
+                  <View style={styles.heroDivider} />
+                </View>
+
+                <View style={styles.card}>
+                  <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>Login</Text>
+
+                    <View style={styles.fieldsGroup}>
+                      <View>
+                        <Text style={styles.label}>Email</Text>
+                        <View style={[styles.inputShell, focusedField === 'email' && styles.inputShellFocused]}>
+                          <TextInput
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="Enter your email"
+                            placeholderTextColor={Colors.textSecondary}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            style={styles.input}
+                            onFocus={() => setFocusedField('email')}
+                            onBlur={() => setFocusedField(null)}
+                          />
+                        </View>
+                      </View>
+
+                      <View>
+                        <Text style={styles.label}>Password</Text>
+                        <View style={[styles.inputShell, focusedField === 'password' && styles.inputShellFocused]}>
+                          <TextInput
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="Enter your password"
+                            placeholderTextColor={Colors.textSecondary}
+                            secureTextEntry={!showPassword}
+                            style={styles.input}
+                            onFocus={() => setFocusedField('password')}
+                            onBlur={() => setFocusedField(null)}
+                          />
+                          <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
+                            <Ionicons
+                              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                              size={16}
+                              color={Colors.textSecondary}
+                            />
+                          </Pressable>
+                        </View>
+                        <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+                          <Text style={styles.forgotLink}>Forget password?</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+
+                    <Pressable
+                      style={[styles.primaryButton, !canSubmit && styles.primaryButtonDisabled]}
+                      onPress={handleLogin}
+                      disabled={!canSubmit}
+                    >
+                      {loading ? (
+                        <ActivityIndicator size="small" color={Colors.white} />
+                      ) : (
+                        <Text style={[styles.primaryButtonText, !canSubmit && styles.primaryButtonTextDisabled]}>
+                          Login
+                        </Text>
+                      )}
+                    </Pressable>
+
+                    <Pressable style={styles.googleButton} onPress={() => Alert.alert('Coming soon', 'Google login is not configured yet.') }>
+                      <Text style={styles.googleButtonText}>Continue with Google</Text>
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.footerRow}>
+                    <Text style={styles.footerText}>Don&apos;t have an account? </Text>
+                    <Pressable onPress={() => router.push('/(auth)/register')}>
+                      <Text style={styles.footerLink}>Make an account</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+          )}
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -376,5 +473,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     color: Colors.primary,
+  },
+  /* desktop layout */
+  desktopRow: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+  },
+  leftPanel: {
+    flex: 1,
+    paddingLeft: Spacing.lg,
+    paddingRight: Spacing.lg,
+    justifyContent: 'center',
+  },
+  leftInner: {
+    maxWidth: Layout.maxContentWidth / 2,
+  },
+  rightPanel: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+  },
+  cardWrapper: {
+    width: 420,
+    paddingHorizontal: Spacing.md,
+  },
+  cardDesktop: {
+    minHeight: 0,
+    marginTop: 0,
+  },
+  heroTitleDesktop: {
+    fontSize: 48,
+    lineHeight: 56,
+    color: Colors.primary,
+  },
+  heroSubtitleDesktop: {
+    fontSize: 18,
+    lineHeight: 26,
   },
 });
